@@ -2,17 +2,20 @@
 
 > 투고처: ISAP 2026 (2–4 pages) | 마감: 2026.06.26
 > 언어: MATLAB R2021b 이상
+> 변경 이력: v1.1 — SIM1/SIM2 실제 포맷 반영 (주파수 도메인 S-파라미터 테이블, IFFT, d_sym 레이블)
 
 ---
 
 ## 1. 모듈 의존성 DAG
 
 ```
-[SIM1/SIM2 .mat 파일]
+[SIM1/SIM2 데이터 파일]
+ 주파수 도메인 S-파라미터 테이블
+ (d_sym, x_coord, y_coord, Freq, mag/ang S(rx1), mag/ang S(rx2))
         │
         ▼
 ┌─────────────────────┐
-│  M01: data_loader   │  .mat 파일 파싱, 채널 데이터 추출
+│  M01: data_loader   │  테이블 파싱 + H(f)→h(t) IFFT 합성 + d_sym 레이블 매핑
 └─────────┬───────────┘
           │  sim_data (struct)
           ▼
@@ -61,12 +64,30 @@
 ## 2. 데이터 흐름도
 
 ```
-SIM1.mat / SIM2.mat
-  └─ CIR_RHCP  [N_pos × N_tap]  complex double  (채널 임펄스 응답, RHCP)
-  └─ CIR_LHCP  [N_pos × N_tap]  complex double  (채널 임펄스 응답, LHCP)
-  └─ labels    [N_pos × 1]      uint8            (0=NLoS, 1=LoS)
-  └─ pos_id    [N_pos × 1]      uint32           (위치 인덱스)
-  └─ t_axis    [1 × N_tap]      double  [ns]     (시간축)
+SIM1/SIM2 원본 테이블  (행: N_pos × N_freq 개)
+  ├─ d_sym      scalar  double  [mm]    시나리오 식별자 (LoS/NLoS 유추용)
+  ├─ x_coord    scalar  double  [mm]    Rx 위치 x
+  ├─ y_coord    scalar  double  [mm]    Rx 위치 y
+  ├─ Freq       scalar  double  [GHz]   UWB Ch.5 주파수 포인트
+  ├─ mag_rx1    scalar  double  [–]     S21 진폭 (rx1 = RHCP 포트)
+  ├─ ang_rx1    scalar  double  [deg]   S21 위상 (rx1 = RHCP 포트)
+  ├─ mag_rx2    scalar  double  [–]     S21 진폭 (rx2 = LHCP 포트)
+  └─ ang_rx2    scalar  double  [deg]   S21 위상 (rx2 = LHCP 포트)
+        │
+        ▼  M01: data_loader
+        │  ① (d_sym, x, y)별 H(f) 구성
+        │  ② H_RHCP(f), H_LHCP(f) = mag·exp(j·ang·π/180)
+        │  ③ IFFT(H, N_fft) → CIR_RHCP, CIR_LHCP  (복소 해석신호)
+        │  ④ t_axis = (0:N_fft-1) / (N_fft·df) [ns]
+        │  ⑤ labels from DSYM_LABEL_MAP(d_sym)
+        ▼
+sim_data struct
+  ├─ CIR_RHCP  [N_pos × N_fft]  complex double  (RHCP CIR, IFFT 출력)
+  ├─ CIR_LHCP  [N_pos × N_fft]  complex double  (LHCP CIR, IFFT 출력)
+  ├─ labels    [N_pos × 1]      uint8            (0=NLoS, 1=LoS, d_sym 매핑)
+  ├─ pos_id    [N_pos × 1]      uint32           (위치 인덱스)
+  ├─ t_axis    [1 × N_fft]      double  [ns]     (시간축)
+  └─ positions [N_pos × 3]      table            (d_sym, x_coord, y_coord)
         │
         ▼  M02: extract_features
 feature_table  [N_pos × 4]  table
@@ -109,18 +130,40 @@ results.(model_name)
 function sim_data = data_loader(filepath, params)
 ```
 
-| 항목 | 타입 | 차원 | 단위 | 설명 |
-|------|------|------|------|------|
-| **입력** filepath | char/string | — | — | .mat 파일 경로 |
-| **입력** params.dataset_id | char | — | — | 'SIM1' 또는 'SIM2' |
-| **출력** sim_data.CIR_RHCP | complex double | [N_pos × N_tap] | V (전압 진폭) | RHCP 채널 임펄스 응답 |
-| **출력** sim_data.CIR_LHCP | complex double | [N_pos × N_tap] | V | LHCP 채널 임펄스 응답 |
-| **출력** sim_data.labels | uint8 | [N_pos × 1] | — | 0=NLoS, 1=LoS |
-| **출력** sim_data.pos_id | uint32 | [N_pos × 1] | — | 위치 인덱스 |
-| **출력** sim_data.t_axis | double | [1 × N_tap] | ns | 시간축 |
+**입력**
 
-> PLACEHOLDER: SIM1/SIM2 .mat 파일의 실제 fieldnames 확인 후 필드 매핑 업데이트 필요.
-> `fieldnames(load(filepath))` 로 확인.
+| 인자 | 타입 | 설명 |
+|------|------|------|
+| `filepath` | char/string | SIM1/SIM2 데이터 파일 경로 (.mat 또는 .csv) |
+| `params.dsym_label_map` | containers.Map | d_sym 값 → LoS/NLoS 레이블 매핑 (필수) |
+| `params.n_fft` | uint32 | IFFT 포인트 수 (기본값: `2^(nextpow2(N_freq)+2)`) |
+| `params.rx1_pol` | char | rx1 포트 편파 식별자 (기본값: `'RHCP'`) |
+| `params.rx2_pol` | char | rx2 포트 편파 식별자 (기본값: `'LHCP'`) |
+
+**출력**
+
+| 인자 | 타입 | 차원 | 단위 | 설명 |
+|------|------|------|------|------|
+| `sim_data.CIR_RHCP` | complex double | [N_pos × N_fft] | — | RHCP CIR (IFFT 결과, 복소 해석신호) |
+| `sim_data.CIR_LHCP` | complex double | [N_pos × N_fft] | — | LHCP CIR (IFFT 결과) |
+| `sim_data.labels` | uint8 | [N_pos × 1] | — | 0=NLoS, 1=LoS (d_sym 매핑) |
+| `sim_data.pos_id` | uint32 | [N_pos × 1] | — | 위치 인덱스 (1-based) |
+| `sim_data.t_axis` | double | [1 × N_fft] | ns | 시간축 (`dt = 1/(N_fft·df_Hz)`) |
+| `sim_data.positions` | table | [N_pos × 3] | mm | 열: d_sym, x_coord, y_coord |
+
+**내부 처리 요약**
+
+1. 테이블 로드: `readtable(filepath)` 또는 `load(filepath)`
+2. 열 이름 표준화: `mag(S(rx1_p1,tx_p1))` → `mag_rx1` 등 (공백/괄호 제거)
+3. 고유 위치 그룹화: `unique(T(:,{'d_sym','x_coord','y_coord'}), 'rows')`
+4. 위치별 복소 전달함수 구성: `H = mag .* exp(1j * ang * pi/180)`
+5. IFFT: `cir = ifft(H, N_fft)` → `sim_data.CIR_RHCP(i,:)`
+6. 시간축: `dt_ns = 1e9 / (N_fft * df_Hz)`, `t_axis = (0:N_fft-1) * dt_ns`
+7. 레이블: `labels(i) = params.dsym_label_map(d_sym_i)`
+
+> **PLACEHOLDER**: `params.dsym_label_map`의 실제 d_sym 값과 LoS/NLoS 대응은
+> 연구자가 `unique(T.d_sym)` 결과를 시나리오 정의 문서와 대조하여 확정.
+> 확정 전까지 `data_loader.m` 실행 시 경고 메시지 출력하도록 구현.
 
 ---
 
@@ -154,6 +197,7 @@ function folds = split_dataset(feature_table, params)
 
 | 파라미터 | 기본값 | 단위 | 근거 |
 |----------|--------|------|------|
+| `n_fft` | `2^(nextpow2(N_freq)+2)` | samples | 주파수 포인트 수 대비 4배 zero-padding → 시간 해상도 향상 및 시간축 aliasing 방지 |
 | `threshold_ratio` | 0.20 | dimensionless | Dardari et al., "Threshold-Based Time-of-Arrival Estimators in UWB Dense Multipath Channels," *IEEE Trans. Commun.*, 2009 |
 | `T_w` | 2.0 | ns | IEEE 802.15.4a CM3 (indoor office NLOS) 첫 번째 클러스터 RMS delay spread ≈ 1–2 ns; 윈도우는 양방향이므로 총 4 ns 커버 |
 | `n_folds` | 5 | dimensionless | Stratified k-fold CV 표준 설정 (Hastie et al., *ESL*, 2009, §7.10) |
