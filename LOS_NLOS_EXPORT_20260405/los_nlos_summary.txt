@@ -1,0 +1,6 @@
+LOS/NLOS classification summary
+threshold_db=3.0
+alpha_db_per_m={"concrete": 142.0, "glass": 28.0, "wood": 41.0, "metal": 1000000.0}
+Scenario A: geometric LOS=56, geometric NLOS=0, material LOS=56, material NLOS=0
+Scenario B: geometric LOS=35, geometric NLOS=21, material LOS=55, material NLOS=1
+Scenario C: geometric LOS=21, geometric NLOS=35, material LOS=40, material NLOS=16
