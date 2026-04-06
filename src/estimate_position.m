@@ -1,5 +1,5 @@
 ﻿function [pos_est, pos_info] = estimate_position(sim_data_test, lut, params)
-% ESTIMATE_POSITION Estimate 2D position from RSSD-based DoA and first-path ranging.
+% ESTIMATE_POSITION Estimate 2D position [m] from RSSD-based DoA [deg] and first-path one-way range [m].
 if nargin < 3
     params = struct();
 end
@@ -49,8 +49,9 @@ for idx = 1:n_pos
     end
 
     t_fp_ns = t_axis_ns(fp_idx_i);
-    % TODO: spec 확인 필요 - single-sided vs round-trip 정의 최종 확정 필요.
-    range_est(idx) = t_fp_ns * 1e-9 * c0 / 2;
+    % Coordinate convention: anchor-centric frame with +x as 0 deg and CCW-positive angle.
+    % Ranging convention: one-way propagation, range [m] = t_fp [s] * c0 [m/s].
+    range_est(idx) = t_fp_ns * 1e-9 * c0;
 end
 
 anchor_x_m = get_param(params, 'anchor_x_m', 0.0);

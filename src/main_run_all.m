@@ -39,6 +39,8 @@ params.svm_optimize_hyperparameters = true;
 params.svm_max_objective_evals = 30;
 params.label_csv = fullfile(project_root, 'LOS_NLOS_EXPORT_20260405', 'track23_all_scenarios_los_nlos.csv');
 params.case_label_map = containers.Map({'caseA', 'caseB', 'caseC'}, {true, true, true});
+params.merge_t_axis_tol_ns = 1e-9;
+params.merge_fs_eff_tol_hz = 1e-3;
 
 if ~exist(fullfile(project_root, 'data'), 'dir'), mkdir(fullfile(project_root, 'data')); end
 if ~exist(fullfile(project_root, 'data', 'raw'), 'dir'), mkdir(fullfile(project_root, 'data', 'raw')); end
@@ -189,7 +191,7 @@ for row_idx = 1:size(cp_candidates, 1)
                 sim_data_all = sim_data_i;
             else
                 feature_table = [feature_table; feature_i]; %#ok<AGROW>
-                sim_data_all = merge_sim_data(sim_data_all, sim_data_i);
+                sim_data_all = merge_sim_data(sim_data_all, sim_data_i, params);
             end
         end
         break;
@@ -243,29 +245,6 @@ if ~ismember('scenario', feature_table.Properties.VariableNames)
 end
 if ~ismember('distance_m', feature_table.Properties.VariableNames)
     feature_table.distance_m = nan(height(feature_table), 1);
-end
-end
-
-function merged = merge_sim_data(a, b)
-% MERGE_SIM_DATA Merge two sim_data structs row-wise.
-merged = a;
-fields_to_stack = {'CIR_rx1', 'CIR_rx2', 'labels', 'x_coord_m', 'y_coord_m', 'RSS_rx1', 'RSS_rx2', 'pol_type', 'case_id'};
-for idx = 1:numel(fields_to_stack)
-    f = fields_to_stack{idx};
-    if isfield(merged, f) && isfield(b, f)
-        merged.(f) = [merged.(f); b.(f)]; %#ok<AGROW>
-    end
-end
-
-if isfield(merged, 'pos_id') && isfield(b, 'pos_id')
-    offset = max(double(merged.pos_id));
-    merged.pos_id = [merged.pos_id; uint32(double(b.pos_id) + offset)];
-end
-
-if isfield(merged, 'inc_ang') && isfield(b, 'inc_ang')
-    merged.inc_ang = [merged.inc_ang; b.inc_ang];
-elseif ~isfield(merged, 'inc_ang') && isfield(b, 'inc_ang')
-    merged.inc_ang = [nan(numel(merged.pos_id)-numel(b.pos_id),1); b.inc_ang];
 end
 end
 

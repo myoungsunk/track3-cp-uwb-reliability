@@ -22,12 +22,21 @@ params.save_outputs = false;
 params.svm_optimize_hyperparameters = false;
 params.dnn_max_epochs = 5;
 params.dnn_mini_batch = 16;
+params.logistic_ridge_lambda = 0.01;
 
 [model, norm_params] = train_logistic(features, labels, params);
 assert(isfield(model, 'coefficients') && numel(model.coefficients) >= 2, 'train_logistic output is invalid.');
+assert(isfield(model, 'backend'), 'train_logistic backend field is missing.');
 
 results = eval_roc_calibration(model, norm_params, features, labels, params);
 assert(isfield(results, 'roc') && isfield(results.roc, 'auc'), 'eval_roc_calibration output is invalid.');
+
+params_ridge = params;
+params_ridge.logistic_backend = 'ridge';
+[model_ridge, norm_ridge] = train_logistic(features, labels, params_ridge);
+assert(strcmpi(model_ridge.backend, 'ridge'), 'ridge backend should be selectable.');
+results_ridge = eval_roc_calibration(model_ridge, norm_ridge, features, labels, params_ridge);
+assert(isfield(results_ridge, 'roc') && isfield(results_ridge.roc, 'auc'), 'ridge eval output is invalid.');
 
 benchmark = run_ml_benchmark(features, labels, params);
 assert(istable(benchmark) && height(benchmark) == 4, 'run_ml_benchmark output is invalid.');

@@ -31,9 +31,7 @@ else
     features_norm = features;
 end
 
-predictor_names = model.predictor_names;
-tbl_in = array2table(features_norm, 'VariableNames', predictor_names);
-predicted_prob = predict(model.mdl_object, tbl_in);
+predicted_prob = predict_logistic_prob(model, features_norm);
 
 [fpr, tpr, thresholds, auc] = perfcurve(labels, predicted_prob, true);
 youden_j = tpr - fpr;

@@ -94,7 +94,7 @@ train_time_s = toc(train_start);
 
 eval_results = eval_roc_calibration(model, norm_params, features, labels, setfield(params_local, 'save_outputs', false)); %#ok<SFLD>
 
-infer_time_us = measure_inference_time(@(x) predict(model.mdl_object, array2table(x, 'VariableNames', model.predictor_names)), ...
+infer_time_us = measure_inference_time(@(x) predict_logistic_prob(model, x), ...
     prepare_single_input(features, norm_params));
 
 metrics = struct();
@@ -294,8 +294,8 @@ for fold_idx = 1:n_folds
     x_test_norm = apply_norm_binary(x_test, norm_info);
 
     dnn_mdl = train_dnn_model(x_train_norm, y_train, max_epochs, mini_batch);
-    score_fold = predict(dnn_mdl, x_test_norm');
-    prob_fold = score_fold(2, :)';
+    score_fold = predict(dnn_mdl, x_test_norm);
+    prob_fold = get_positive_score(score_fold, dnn_mdl.Layers(end).Classes);
     scores_oof(test_idx) = prob_fold;
 
     fold_metrics = binary_metrics(prob_fold, y_test, get_param(params, 'ece_num_bins', 10));
@@ -314,7 +314,7 @@ flops = get_param(params, 'dnn_flops', 194);
 n_parameters = get_param(params, 'dnn_n_parameters', 194);
 
 x_single = apply_norm_binary(features(1, :), norm_all);
-infer_time_us = measure_inference_time(@(x) predict(dnn_full, x'), x_single);
+infer_time_us = measure_inference_time(@(x) predict(dnn_full, x), x_single);
 
 [~, ~, ~, auc_all] = perfcurve(labels, scores_oof, true);
 [fpr_all, tpr_all] = perfcurve(labels, scores_oof, true);
@@ -353,6 +353,11 @@ metrics.roc_tpr = NaN;
 end
 
 function dnn_mdl = train_dnn_model(x_train, y_train, max_epochs, mini_batch)
+if size(x_train, 1) ~= numel(y_train)
+    error('[run_ml_benchmark] DNN train input size mismatch: X rows=%d, Y count=%d.', ...
+        size(x_train, 1), numel(y_train));
+end
+
 layers = [ ...
     featureInputLayer(2)
     fullyConnectedLayer(16)
@@ -367,7 +372,7 @@ y_cat = categorical(y_train);
 options = trainingOptions('adam', 'MaxEpochs', max_epochs, 'MiniBatchSize', mini_batch, ...
     'Verbose', false, 'Plots', 'none');
 
-dnn_mdl = trainNetwork(x_train', y_cat', layers, options);
+dnn_mdl = trainNetwork(x_train, y_cat, layers, options);
 end
 
 function [x_norm, info] = normalize_binary(x)
