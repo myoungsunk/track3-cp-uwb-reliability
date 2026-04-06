@@ -7,6 +7,8 @@
 > v1.1 — 실제 데이터 포맷 반영 (주파수 도메인 S-파라미터, IFFT, d_sym 레이블)
 > v2.0 — Phase 0 v2 반영: 실 CSV 포맷 확정, CP/LP 파일 분리, 16개 모듈 전면 재설계,
 >         Joint Phase 1 (Feature + Localization), LoS-only Gate, v1 Placeholder 제거
+> v2.1 — 연구자 확인 반영: 좌표 단위=mm 확정, 레이블=좌표별 외부 파일(LOS_NLOS_EXPORT),
+>         guide 데이터 존재 확정(RSSD 위치추정 활성화), Ansys CSV 포맷 확정
 
 ---
 
@@ -34,7 +36,7 @@ scenario     : A | B | C  (시나리오 종류)
 
 | 원본 열 이름 | MATLAB readtable 자동 변환명 | 단위 | 설명 |
 |------------|---------------------------|------|------|
-| `x_coord [n]` | `x_coord_n_` | mm (PLACEHOLDER: 단위 확인) | Rx 위치 x 좌표 |
+| `x_coord [n]` | `x_coord_n_` | **mm (확정)** | Rx 위치 x 좌표 |
 | `y_coord [n]` | `y_coord_n_` | mm | Rx 위치 y 좌표 |
 | `Freq [GHz]` | `Freq_GHz_` | GHz | 주파수 포인트 |
 | `mag(S(rx1,p1,tx_p1)) []` | `mag_S_rx1_p1_tx_p1___` | — | rx1 S21 진폭 |
@@ -52,21 +54,25 @@ x_coord=750, y_coord=-1750, Freq=6.24 GHz,
 > 예시값(750, -1750)이 mm이라면 0.75m, 1.75m → 실내 시나리오로 타당.
 > `load_sparam_table.m`에 `coord_unit_mm2m = true` 옵션으로 자동 변환.
 
-### 1.3 LoS/NLoS 레이블 (caseA/B/C 매핑)
+### 1.3 LoS/NLoS 레이블 (확정)
 
-레이블이 CSV 내에 직접 포함되어 있지 않음. 파일명의 case 식별자로 유추.
+레이블은 CSV 내에 없으며, **별도 export 디렉토리에서 좌표 기반으로 로드**:
 
-```matlab
-% PLACEHOLDER: 연구자가 실제 시나리오 정의에 따라 확정
-CASE_LABEL_MAP = containers.Map(...
-    {'caseA', 'caseB', 'caseC'}, ...
-    {true,    true,    false  }  ...  % true=LoS, false=NLoS (예시, 확인 필요)
-);
+```
+레이블 파일 위치: LOS_NLOS_EXPORT_20260405/
+레이블 단위: 위치(x_mm, y_mm)별 개별 지정
+
+시나리오별 현황:
+  caseA → 전체 위치 LoS (단일 레이블)
+  caseB → 위치별 LoS/NLoS 혼재
+  caseC → 위치별 LoS/NLoS 혼재
 ```
 
-> 현재 보유 데이터는 **LoS only** (caseA/B/C 모두 LoS 시나리오일 가능성).
-> NLoS 시나리오 데이터 생성 후 동일 파이프라인에 투입.
-> LoS-only 상태에서는 §5.2의 Gate 로직이 자동으로 분류 실험을 skip.
+레이블 로딩 모듈: **M01b (`load_los_nlos_labels.m`)** — 신규 추가
+→ 좌표 기반 join으로 S-param CSV 위치에 레이블 부착 (허용 오차 `coord_tol_mm = 1e-3`)
+
+> **LoS-only Gate**: caseA만 로드 시 NLoS=0 → Gate 자동 발동.
+> caseB 또는 caseC 포함 시 NLoS 존재 → 분류 실험 활성화.
 
 ---
 
@@ -75,8 +81,9 @@ CASE_LABEL_MAP = containers.Map(...
 ### 2.1 모듈 목록
 
 ```
-M01  load_sparam_table.m         — CSV/MAT 로드, 열 이름 정규화
-M02  build_sim_data_from_table.m  — Hanning windowing + IFFT → CIR + sim_data 구조체
+M01   load_sparam_table.m         — Ansys CSV 로드, 열 이름 정규화
+M01b  load_los_nlos_labels.m      — LOS_NLOS_EXPORT 디렉토리에서 좌표별 레이블 로드 (신규)
+M02   build_sim_data_from_table.m  — Hanning windowing + IFFT → CIR + sim_data 구조체
 M03  detect_first_path.m         — Leading-edge first-path 검출 (공용)
 M04  extract_rcp.m               — r_CP 계산 (RHCP/LHCP first-path 전력비)
 M05  extract_afp.m               — a_FP 계산 (first-path 에너지 집중도)
@@ -209,7 +216,8 @@ feature_table  (MATLAB table)            [CP 데이터 전용]
 
 | 모듈 | 주요 입력 | 주요 출력 | 상세 spec |
 |------|---------|---------|---------|
-| M01 load_sparam_table | CSV/MAT 경로 | freq_table | spec_load_and_build.md §2.1 |
+| M01 load_sparam_table | Ansys CSV 경로 | freq_table | spec_load_and_build.md §2.1 |
+| M01b load_los_nlos_labels | label_dir, case_id | label_table (x,y,label) | spec_load_and_build.md §4 |
 | M02 build_sim_data_from_table | freq_table | sim_data | spec_load_and_build.md §2.2 |
 | M03 detect_first_path | cir_abs [N_tap×1] | fp_idx, fp_info | spec_extract_features_v2.md §3.1 |
 | M04 extract_rcp | cir_rx1, cir_rx2 [N_tap×1] | r_CP, rcp_info | spec_extract_features_v2.md §3.2 |
@@ -344,6 +352,7 @@ track3-cp-uwb-reliability/
 │   └── (archive) spec_logistic_model.md     ← v1 (참조용)
 ├── src/
 │   ├── load_sparam_table.m
+│   ├── load_los_nlos_labels.m       ← M01b (신규)
 │   ├── build_sim_data_from_table.m
 │   ├── detect_first_path.m
 │   ├── extract_rcp.m
@@ -365,7 +374,9 @@ track3-cp-uwb-reliability/
 │   ├── cp_caseC.csv
 │   ├── lp_caseA.csv
 │   ├── lp_caseB.csv
-│   └── lp_caseC.csv
+│   ├── lp_caseC.csv
+│   └── LOS_NLOS_EXPORT_20260405/   ← 좌표별 LoS/NLoS 레이블 (.gitignore)
+│       └── (TODO: 실제 파일명 확인)
 ├── results/                         ← 자동 생성
 ├── figures/                         ← 자동 생성
 └── prompts/
