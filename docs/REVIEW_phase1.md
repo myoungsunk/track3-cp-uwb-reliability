@@ -1,225 +1,228 @@
-# REVIEW_phase1.md — Phase 1 코드 사전 검수
+# REVIEW_phase1.md — Phase 1 코드 구현 후 검수
 
 > 검수 대상: M01–M10 (데이터 로딩, CIR 합성, Feature 추출, 위치추정)
-> 검수 시점: **코드 구현 전 spec 수준 사전 검수** (Codex 구현 완료 후 코드 검수로 업데이트 예정)
-> 작성일: 2026-04-05
+> 검수 시점: **코드 구현 완료 후 실제 코드 기준 검수**
+> 작성일: 2026-04-07 (최초 사전 검수: 2026-04-05)
 
 ---
 
 ## 요약
 
-| 모듈 | Spec 완성도 | 구현 리스크 | 우선순위 |
-|------|-----------|-----------|---------|
-| M01 load_sparam_table | ✅ 완성 | 낮음 (readtable 표준) | 2 |
-| M01b load_los_nlos_labels | ⚠️ TODO 존재 | **높음** (파일 구조 미확인) | **1** |
-| M02 build_sim_data_from_table | ✅ 완성 | 중간 (IFFT 파라미터) | 3 |
-| M03 detect_first_path | ✅ 완성 | 낮음 | 4 |
-| M04 extract_rcp | ✅ 완성 | 낮음 | 4 |
-| M05 extract_afp | ✅ 완성 | 낮음 | 4 |
-| M06 extract_features_batch | ✅ 완성 | 낮음 | 4 |
-| M07 build_rssd_lut | ⚠️ guide 데이터 구조 미확인 | **높음** | **1** |
-| M08 estimate_doa_rssd | ✅ 완성 | 낮음 | 5 |
-| M09 estimate_position | ⚠️ 좌표계 미확정 | 중간 | 3 |
-| M10 run_joint_phase1 | ✅ 완성 | 낮음 | 5 |
+| 모듈 | 파일 | Spec 일치 | Edge Case | 수치 안정성 | 재현성 | 단위 일관성 | 판정 |
+|------|------|----------|-----------|-----------|--------|-----------|------|
+| M01 | load_sparam_table.m | ✅ | ⚠️ | ✅ | N/A | ✅ | PASS |
+| M02 | build_sim_data_from_table.m | ✅ | ⚠️ | ⚠️ | N/A | ✅ | PASS (WARNING) |
+| M03 | detect_first_path.m | ✅ | ✅ | ✅ | N/A | ✅ | PASS |
+| M04 | extract_rcp.m | ✅ | ✅ | ✅ | N/A | ✅ | PASS |
+| M05 | extract_afp.m | ✅ | ✅ | ✅ | N/A | ✅ | PASS |
+| M06 | extract_features_batch.m | ✅ | ✅ | ✅ | N/A | ✅ | PASS |
+| M07 | build_rssd_lut.m | ✅ | ⚠️ | ⚠️ | N/A | ✅ | PASS (WARNING) |
+| M08 | estimate_doa_rssd.m | ✅ | ✅ | ✅ | N/A | ✅ | PASS |
+| M09 | estimate_position.m | ⚠️ | ✅ | ✅ | N/A | ✅ | WARNING |
+| M10 | run_joint_phase1.m | ✅ | N/A | N/A | N/A | N/A | PASS |
 
 ---
 
-## M01: load_sparam_table
+## M03: detect_first_path.m
 
-### ✅ PASS
+### PASS 항목
+- [x] 함수 시그니처 `[fp_idx, fp_info] = detect_first_path(cir_abs, params)` — spec 일치
+- [x] Leading-edge threshold 검출: `threshold = fp_threshold_ratio * peak_val` (L72) — 정확
+- [x] 탐색 윈도우 `fp_search_window_ns` + `t_axis` 연동 정상 (L32–65)
+- [x] 빈 CIR 처리: `n_tap == 0` → `fp_idx = NaN` (L17–19)
+- [x] 비정상 peak 처리: `peak_val <= 0` 또는 `~isfinite(peak_val)` → `fp_idx = NaN` (L78–80)
+- [x] `fp_info` 구조체 반환 (peak_idx, peak_val, threshold, search_range, found)
+- [x] `search_window_ns` 사용 시 `t_axis` 없으면 error 발생 (L36–38) — W7 해결 확인
 
-- [x] Ansys CSV 형식 반영 완료
-- [x] 파일명 파싱 (`cp`/`lp`, `caseA/B/C`) 로직 명확
-- [x] 복소 전달함수 변환: `H = mag * exp(j * ang_rad)` 정확
-- [x] NaN 검사 및 경고 포함
-- [x] group_id 생성: `unique(coords, 'rows', 'stable')` 방식 적절
+### WARNING 항목
+- **W-M03-1**: `fp_threshold_ratio` 상한 검증 미비 (L22–25). `ratio > 1.0` 허용 시 `threshold > peak_val` → `find(cir_search >= threshold)` 가 peak 자체만 반환. 물리적으로는 무의미하나 crash하지 않음.
+  - 심각도: Low
+  - 수정 제안: `if fp_threshold_ratio > 1.0, warning('...'); end` 추가 (선택)
 
-### ⚠️ WARNING
-
-**W1**: `params.col_*` 기본값이 MATLAB 버전마다 다를 수 있음.
-- readtable이 `[n]` 단위 표기를 `_n_`으로 변환하는지 `_n__` (언더스코어 2개)으로 변환하는지 R2021b에서 직접 확인 필요.
-- **조치**: M01 구현 시 `T.Properties.VariableNames`를 출력하고, params.col_*과 비교하는 `validate_column_names()` 내부 헬퍼 추가.
-
-**W2**: 주파수 축이 오름차순이 아닐 경우 IFFT 결과에 왜곡 발생.
-- **조치**: M01에서 `freq_table`을 `group_id` + `freq_ghz` 기준으로 정렬 후 반환.
-
-### ❌ FAIL (없음)
+### FAIL 항목
+없음.
 
 ---
 
-## M01b: load_los_nlos_labels
+## M04: extract_rcp.m
 
-### ❌ FAIL (구현 전 필수 확인)
+### PASS 항목
+- [x] 함수 시그니처 `[r_CP, rcp_info] = extract_rcp(cir_rx1, cir_rx2, params)` — spec 일치
+- [x] Edge case 4종 완비 (L46–63):
+  - `both_zero` → `r_CP = NaN` ✅
+  - `lhcp_zero` (P_rx2=0, P_rx1>0) → `r_CP = r_CP_clip` ✅
+  - `rhcp_zero` (P_rx1=0, P_rx2>0) → `r_CP = 0` ✅
+  - `clipped` (r_CP > r_CP_clip) → `r_CP = r_CP_clip` ✅
+- [x] `r_CP_clip` 기본값 `1e4` (= 40 dB) — spec 일치
+- [x] `min_power_dbm` 기반 노이즈 플로어 처리 (L18–23)
+- [x] Division by zero 방지: `p_rx2 == 0` 시 분기 처리로 나눗셈 자체 회피 ✅
+- [x] `r_CP_clip` 유효성 검증: positive finite 체크 (L14–16)
+- [x] First-path 각 채널 독립 검출 (L25–26) — 물리적으로 올바름
 
-**F1**: `LOS_NLOS_EXPORT_20260405/` 파일의 실제 구조가 spec에 미반영.
-- 열 이름, LoS 플래그 값, 파일명 패턴이 모두 TODO 상태.
-- Codex가 구현하기 전에 **연구자가 먼저** 아래를 확인해야 함:
+### WARNING 항목
+- **W-M04-1**: `min_power_dbm - 30` (L20) dBm → linear 변환에서 `-30` 상수 하드코딩. `10^((dBm - 30)/10)` = `10^(dBm/10) / 1000` 으로 정확한 dBm → Watt 변환이지만, 이 코드에서 RSS가 상대값(dBm relative)이므로 절대 참조 불일치 가능.
+  - 심각도: Low (현재 `min_power_dbm = -inf` 기본값이므로 실행에 영향 없음)
+  - 수정 제안: 주석으로 `% dBm to Watt: P_linear = 10^((P_dBm - 30)/10)` 의도 명시
 
-```matlab
-% 확인 절차
-files = dir('LOS_NLOS_EXPORT_20260405/*.csv')
-T = readtable(files(1).name)
-disp(T.Properties.VariableNames)   % 열 이름 확인
-disp(T(1:5,:))                     % 첫 5행 확인
-unique(T.(flag_col))               % 플래그 값 종류 확인
-```
-
-**F2**: `match_labels_by_coord()`의 `coord_tol_mm = 1e-3` 값이 임의.
-- S-param CSV와 레이블 파일의 좌표가 동일한 소수점 자리를 사용하는지 확인 필요.
-- 두 파일의 좌표가 독립적으로 생성된 경우 부동소수점 표현이 달라 매칭 실패 가능.
-- **조치**: 매칭 전 round(x, 4) 처리 또는 좌표 최소 간격의 0.1배를 `tol_mm`으로 자동 설정.
-
-### ⚠️ WARNING
-
-**W3**: `caseA` 전체가 LoS임에도 불구하고 레이블 파일에서 매칭을 시도하면 오버헤드.
-- **조치**: `if strcmp(case_id, 'caseA')` 시 레이블 파일 로드 없이 `labels = true(N_pos, 1)` 직접 할당하는 fast path 추가.
+### FAIL 항목
+없음.
 
 ---
 
-## M02: build_sim_data_from_table
+## M05: extract_afp.m
 
-### ✅ PASS
+### PASS 항목
+- [x] 함수 시그니처 `[a_FP, afp_info] = extract_afp(cir_rx1, cir_rx2, t_axis, params)` — spec 일치
+- [x] CIR 소스 4종 선택 (L16–27): RHCP, LHCP, COMBINED, POWER_SUM — spec 일치
+- [x] 에너지 비율 계산: `a_FP = E_fp / E_total` (L55) — 정확
+- [x] First-path NaN 시 `a_FP = NaN` 반환 (L38–43)
+- [x] `E_total <= 0` edge case → `a_FP = NaN` (L52–53)
+- [x] a_FP 클램핑 `min(max(a_FP, 0), 1)` (L56)
+- [x] 시간 윈도우: `[t_fp - T_w, t_fp + T_w]` (L46–48) — spec 일치, T_w = 2.0 ns 기본값
 
-- [x] Hanning window + zero-padding + IFFT 흐름 명확
-- [x] 시간축 계산: `dt = 1/(N_fft * df_Hz)` 정확
-- [x] RSS 계산에 상대값임을 주석으로 명시
-- [x] 레이블 로딩을 M01b에 위임 (M02는 CIR 합성만 담당)
+### WARNING 항목
+- **W-M05-1**: COMBINED 모드(L22)에서 `(cir_rx1 + cir_rx2) / 2` 는 복소 진폭 평균. 두 CIR의 위상이 다르면 상쇄간섭 발생. 의도적 설계인지 확인 필요.
+  - 심각도: Low (기본값 RHCP이므로 대부분의 경우 영향 없음)
+- **W-M05-2**: POWER_SUM 모드(L24)에서 `sqrt(|rx1|^2 + |rx2|^2)` 는 전력 합산의 제곱근으로, 명칭이 혼동 가능 (`power_sum`이지만 실제로는 magnitude of vector sum). 
+  - 심각도: Low (문서화 이슈)
 
-### ⚠️ WARNING
-
-**W4**: N_fft이 위치별로 다를 수 있음.
-- 주파수 범위 필터링 후 남은 포인트 수 `N_f`가 위치마다 다를 경우 `CIR_rx1` 행렬 사전 할당 불가.
-- **조치**: 첫 번째 그룹으로 `N_fft` 결정 후 모든 그룹에 동일 적용. 다른 경우 warning 출력.
-
-**W5**: `hann(N_f)` 함수가 R2021b에서는 `hanning(N_f)`일 수 있음.
-- **조치**: `if exist('hann', 'builtin'), win = hann(N_f); else, win = hanning(N_f); end`
-
-**W6**: IFFT 출력이 복소수이므로 `abs(CIR)` 를 쓰는 모든 하류 함수에서 명시적 변환 필요.
-- M03 `detect_first_path`의 입력이 `cir_abs` (이미 절대값) 형태로 설계되어 있어 ✅.
-- M04, M05도 `abs()` 적용 구조이므로 ✅.
-
-### ❌ FAIL (없음)
+### FAIL 항목
+없음.
 
 ---
 
-## M03: detect_first_path
+## M06: extract_features_batch.m
 
-### ✅ PASS
+### PASS 항목
+- [x] 함수 시그니처 `[feature_table, sim_data] = extract_features_batch(sim_data, params)` — spec 일치
+- [x] Feature table 9개 열: pos_id, r_CP, a_FP, label, valid_flag, fp_idx_RHCP, fp_idx_LHCP, RSS_RHCP, RSS_LHCP — spec 일치
+- [x] `valid_flag`: r_CP 또는 a_FP가 NaN이면 false (L47–49)
+- [x] r_CP 이중 클리핑 (L57–58): `extract_rcp` 내부 클리핑 후 배치 레벨에서 재클리핑 — 중복이지만 안전
+- [x] 라벨 미존재 시 fallback `true(n_pos, 1)` + warning (L63–65)
+- [x] 진행률 출력 매 100 샘플 (L51–53)
+- [x] CIR 크기 일치 검증 (L19–21)
 
-- [x] Leading-edge threshold 방식 구현 명확
-- [x] `search_window` 옵션: ranging 재사용 지원
-- [x] `fp_info` 구조체 반환: 디버깅 지원
-- [x] 탐색 실패 시 `NaN` 반환: 하류에서 `valid_flag=false` 처리
+### WARNING 항목
+없음.
 
-### ⚠️ WARNING
-
-**W7**: `search_window` 사용 시 `params.t_axis`가 없으면 에러 발생.
-- **조치**: `if ~isempty(params.fp_search_window_ns) && isempty(params.t_axis), error(...), end`
-
-**W8**: `threshold = fp_threshold_ratio × max(cir_search)` 에서 `cir_search`가 모두 0인 경우 `threshold = 0` → `candidates = find(cir_search > 0)` → 첫 번째 비-zero 샘플 반환 가능.
-- 이 경우 noise floor의 첫 샘플을 first-path로 잘못 검출.
-- **조치**: `if peak_val < noise_floor_linear, fp_idx = NaN; return; end` 추가. `noise_floor_linear = 10^(params.min_power_dbm/10)`.
-
----
-
-## M04: extract_rcp
-
-### ✅ PASS
-
-- [x] edge case 4종 처리 완비 (`ok`, `rx2_zero`, `rx1_zero`, `both_below_floor`)
-- [x] `r_CP_clip` 클리핑으로 Inf 방지
-- [x] `fp_info` 반환으로 디버깅 지원
-
-### ⚠️ WARNING
-
-**W9**: LHCP first-path 인덱스(`fp_l`)와 RHCP first-path 인덱스(`fp_r`)가 다를 때, 두 채널의 first-path가 서로 다른 시각에 있음을 의미.
-- 현재는 독립적으로 검출하므로 물리적으로 올바른 설계.
-- 단, `fp_r`과 `fp_l`의 차이가 너무 크면 (예: 5 ns 이상) 한쪽이 noise peak를 검출했을 가능성.
-- **조치**: `if abs(t_axis(fp_r) - t_axis(fp_l)) > 5 ns, rcp_info.flag = 'fp_timing_mismatch'` 경고 추가 (선택).
-
-### ❌ FAIL (없음)
+### FAIL 항목
+없음.
 
 ---
 
-## M05: extract_afp
+## M01: load_sparam_table.m
 
-### ✅ PASS
+### PASS 항목
+- [x] CSV/MAT 로드 지원
+- [x] 복소 전달함수 변환: `H = mag * exp(1j * ang_rad)` — 정확
+- [x] NaN/Inf 검사 후 경고 출력
+- [x] 좌표 단위 변환 (mm/m) 지원
+- [x] 위상 단위 변환 (deg/rad) 지원
+- [x] `find_column_name()` 헬퍼로 MATLAB 버전 간 열 이름 차이 대응
 
-- [x] CIR 선택 4종 (`RHCP/LHCP/combined/power_sum`) 완비
-- [x] `fp_idx`는 선택된 CIR 기준으로 재검출 (일관성 ✅)
-- [x] `E_total == 0` edge case 처리
+### WARNING 항목
+- **W-M01-1**: 비정상 행 필터링 시 silent drop (warning만 출력, 복구 불가). 데이터 손실 추적 어려움.
+  - 심각도: Low (warning 존재)
+- **W-M01-2**: 주파수 축 정렬이 M01 내부에서 보장되지 않음. 정렬은 M02에서 수행되나, M01 출력이 비정렬 상태로 다른 곳에 사용될 경우 문제 가능.
+  - 심각도: Low (현재 파이프라인에서는 M01 → M02 순차 호출)
 
-### ⚠️ WARNING
-
-**W10**: `power_sum` 모드에서 `cir = sqrt(|rx1|² + |rx2|²)` 계산 후 `detect_first_path(abs(cir), ...)` 를 호출하면 `abs(sqrt(...))` = `sqrt(...)` (이미 실수 양수).
-- 문제없음. 단, 코드에서 `abs(cir)` 대신 `cir` 직접 사용 가능 → 불필요한 abs() 호출.
-- **조치**: `power_sum` 케이스에서는 `cir_abs = cir` (already positive real) 주석 추가.
-
----
-
-## M06: extract_features_batch
-
-### ✅ PASS
-
-- [x] sim_data 두 번째 출력으로 반환 (localization 재사용)
-- [x] valid_flag, fp_idx를 feature_table에 포함
-- [x] r_CP Inf → clip 처리
-- [x] label fallback (없으면 all-LoS + warning)
-- [x] 진행률 출력
-
-### ⚠️ WARNING
-
-**W11**: for loop 방식은 N_pos가 크면 느림.
-- MATLAB에서 `parfor`로 병렬화 가능하나, `detect_first_path` 내 `params.t_axis` 참조가 있어 parfor 적용 시 주의.
-- **조치**: 초기 구현은 for loop, N_pos > 1000이면 parfor 고려.
+### FAIL 항목
+없음.
 
 ---
 
-## M07: build_rssd_lut
+## M02: build_sim_data_from_table.m
 
-### ⚠️ WARNING (guide 데이터 구조 확인 후 업데이트 필요)
+### PASS 항목
+- [x] Hanning window + zero-padding + IFFT 파이프라인 구현
+- [x] 시간축 계산: `dt = 1/(N_fft * df_Hz)`, 나노초 변환 정확
+- [x] RSS 계산: `10*log10(sum(|cir|^2))` — 상대값 (dB)
+- [x] 레이블 CSV 매칭 (좌표 기반 join)
+- [x] mm → m 변환 (`/1e3`) 정상
 
-**W12**: guide 데이터 존재가 확정되었으나, inc_ang 열 이름과 데이터 구조가 spec에 명시되지 않음.
-- guide 파일도 Ansys CSV 형태인지, 또는 별도 측정 파일인지 확인 필요.
-- **조치**: guide 파일 확인 후 M01의 `params.coord_cols = {'inc_ang'}` 설정 방법 업데이트.
+### WARNING 항목
+- **W-M02-1**: `interp1()` 에서 'linear' + 'extrap' 사용. 주파수 대역 외 외삽은 비물리적 값 생성 가능.
+  - 심각도: Medium
+  - 수정 제안: `'extrap'` 대신 `'none'` 사용 후 NaN 구간 zero-fill. 또는 대역 외 데이터를 사전 제거.
+- **W-M02-2**: 좌표 매칭 시 `sprintf('%.3f', ...)` 로 3자리 반올림. 부동소수점 표현 차이로 1mm 미만의 좌표 불일치 발생 가능.
+  - 심각도: Medium (현재 데이터에서 실제 불일치 없었으나, 다른 데이터셋 적용 시 위험)
+  - 수정 제안: `round(coord, 3)` 대신 `abs(coord_a - coord_b) < tol` 방식 사용
 
-**W13**: RSSD 단조성 가정이 실제 패턴과 다를 경우 DoA 추정 실패.
-- CP 안테나의 RSSD-angle 곡선이 비단조일 때 `monotonic_range`가 좁아질 수 있음.
-- **조치**: LUT 생성 후 `plot(lut.ang_axis, lut.rssd_curve)` 시각화 필수.
+### FAIL 항목
+없음.
 
 ---
 
-## M09: estimate_position
+## M07: build_rssd_lut.m
 
-### ❌ FAIL
+### PASS 항목
+- [x] RSSD = RSS_ant1 - RSS_ant2 계산 — spec 일치
+- [x] 보간 기반 LUT 생성
+- [x] 단조 구간 자동 검출
 
-**F3**: 좌표계가 미확정.
-- Tx 앵커 위치 (`anchor_x_m`, `anchor_y_m`), DoA 기준 방향 (`doa_reference_deg`)이 모두 TODO.
-- 이 값들이 잘못되면 위치 추정 오차가 체계적으로 틀림.
-- **조치**: MATLAB 시뮬레이션 설정 파일에서 Tx 위치 및 좌표계 기준 확인 후 spec 업데이트.
+### WARNING 항목
+- **W-M07-1**: `sign()` 이 0을 반환하는 경우 (기울기=0 구간) 단조성 판단이 불안정 (fragile slope detection).
+  - 심각도: Medium
+- **W-M07-2**: 단조 구간이 존재하지 않는 패턴에서 빈 범위 반환 가능.
+  - 심각도: Medium (현재 localization 미사용이므로 실행에 영향 없음)
 
-**F4**: ranging 시 single-sided vs round-trip이 미확정.
-- Ansys S-parameter 시뮬레이션은 보통 one-way transfer (S21).
-- `range = t_fp_ns * 1e-9 * c0` (one-way) vs `range = t_fp_ns * 1e-9 * c0 / 2` (round-trip).
-- **조치**: Ansys 시뮬레이션 설정에서 확인. 일반적으로 S21은 one-way이므로 `range = t_fp_ns * 1e-9 * c0` 가 맞을 가능성 높음.
+### FAIL 항목
+없음. (Guide 데이터 미사용으로 실행 경로 미도달)
+
+---
+
+## M09: estimate_position.m
+
+### WARNING 항목
+- **W-M09-1**: One-way vs two-way ranging 미확정 (F4 사전 검수 항목 유지).
+  - `range = t_fp_ns * 1e-9 * c0` (one-way) — S21은 일반적으로 one-way이므로 올바를 가능성 높음.
+  - 그러나 spec에 명시적 확인 미완료.
+- **W-M09-2**: Tx 앵커 좌표 (`anchor_x_m`, `anchor_y_m`) 기본값 `(0, 0)`. 실제 시뮬레이션 설정과 일치 여부 미확인.
+  - 심각도: Medium (현재 localization 미사용)
+
+### FAIL 항목
+없음. (Localization 미실행이므로 실제 영향 없음)
+
+---
+
+## M10: run_joint_phase1.m
+
+### PASS 항목
+- [x] 함수 시그니처 `results = run_joint_phase1(sim_data_guide, sim_data_test, params)` — spec 일치
+- [x] Feature 추출 → Localization 순차 호출 구조 — 간결하고 명확
+- [x] Localization 선택적 실행 (guide 데이터 유무에 따라)
+
+### FAIL 항목
+없음.
+
+---
+
+## 사전 검수 (2026-04-05) 대비 변경 사항
+
+| 사전 검수 항목 | 상태 | 비고 |
+|--------------|------|------|
+| F1 (M01b): LoS/NLoS 파일 구조 미확인 | ✅ 해결 | `LOS_NLOS_EXPORT_20260405/` CSV 기반 좌표 매칭 구현 완료 |
+| F3 (M09): 좌표계 미확정 | ⚠️ 미완 | Localization 미사용이므로 현재 영향 없음. 향후 guide 데이터 확보 시 재확인 필요 |
+| F4 (M09): One-way vs two-way | ⚠️ 미완 | 상동 |
+| W1: 열 이름 버전 차이 | ✅ 해결 | `find_column_name()` 헬퍼로 유연 매칭 구현 |
+| W2: freq_table 정렬 | ✅ 해결 | M02에서 정렬 보장 |
+| W5: `hann()` vs `hanning()` | ✅ 해결 | 코드에서 적절히 처리 |
+| W7: search_window + t_axis | ✅ 해결 | L36–38에서 error 발생 |
+| W8: noise floor fp_idx | ✅ 해결 | `peak_val <= 0` 검사 (L78) |
 
 ---
 
 ## Phase 1 전체 결론
 
-**코드 구현 착수 전 필수 해결 항목:**
-1. **F1** (M01b): `LOS_NLOS_EXPORT_20260405/` 파일 구조 확인
-2. **F3** (M09): Tx 앵커 위치 및 좌표계 기준 확인
-3. **F4** (M09): S21 = one-way ToA 확인
-4. **W12** (M07): guide 파일 구조 확인
+**구현 품질: PASS (4 WARNING)**
 
-**구현 중 주의 항목:**
-- W1: `params.col_*` 열 이름 실제 확인
-- W2: freq_table 정렬 보장
-- W5: `hann()` vs `hanning()` MATLAB 버전 확인
-- W8: noise floor 기반 fp_idx NaN 처리
+코드가 spec을 충실히 구현함. Feature 추출 핵심 모듈 (M03–M06)은 edge case 처리 완비, 수치 안정성 확보. Localization (M07–M09)은 현재 미사용이므로 실행 검증 불가하나, 코드 구조상 큰 문제 없음.
+
+**잔여 리스크:**
+1. M02 좌표 매칭의 부동소수점 허용 오차 (W-M02-2) — 다른 데이터셋 적용 시 주의
+2. M02 외삽 (W-M02-1) — 대역 외 주파수 데이터 존재 시 비물리적 CIR 생성 가능
+3. M09 ranging convention 미확정 — Localization 활성화 시 반드시 확인
 
 ---
 
-*최종 수정: 2026-04-05 | 작성자: Claude Code (Architecture Agent) — 사전 검수*
-*코드 구현 완료 후 실제 코드 기준으로 업데이트 예정*
+*최종 수정: 2026-04-07 | 작성자: Claude Code — 구현 후 코드 검수*
