@@ -41,6 +41,7 @@ params.label_csv = fullfile(project_root, 'LOS_NLOS_EXPORT_20260405', 'track23_a
 params.case_label_map = containers.Map({'caseA', 'caseB', 'caseC'}, {true, true, true});
 params.merge_t_axis_tol_ns = 1e-9;
 params.merge_fs_eff_tol_hz = 1e-3;
+params.enable_4port_bc_sweep = true;
 
 if ~exist(fullfile(project_root, 'data'), 'dir'), mkdir(fullfile(project_root, 'data')); end
 if ~exist(fullfile(project_root, 'data', 'raw'), 'dir'), mkdir(fullfile(project_root, 'data', 'raw')); end
@@ -123,6 +124,18 @@ fprintf('\nAblation:\n');
 for i = 1:height(ablation)
     fprintf('  %s: AUC=%.3f (ΔAUC=%.3f)\n', ...
         char(ablation.config(i)), ablation.auc(i), ablation.delta_auc_vs_combined(i));
+end
+
+%% ===== 7. 4-port B/C (material/geometric) 추가 실행 =====
+if isfield(params, 'enable_4port_bc_sweep') && logical(params.enable_4port_bc_sweep)
+    fprintf('\n[Extra] Running 4-port B/C sweep (material vs geometric)...\n');
+    try
+        summary_4case = run_4port_bc_sweep(project_root);
+        save(fullfile(params.results_dir, 'summary_bc_4cases.mat'), 'summary_4case');
+        fprintf('  Saved: %s\n', fullfile(params.results_dir, 'summary_bc_4cases.csv'));
+    catch exception_info
+        warning('[main_run_all] 4-port B/C sweep failed: %s', exception_info.message);
+    end
 end
 
 function [feature_table, sim_data_all] = extract_or_load_feature_table(sim_data_path, params, project_root)
