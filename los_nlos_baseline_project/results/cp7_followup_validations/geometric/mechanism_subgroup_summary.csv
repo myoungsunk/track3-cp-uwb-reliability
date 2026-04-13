@@ -1,0 +1,13 @@
+subset_name,feature_name,n_samples,n_los,n_nlos,focus_feature,auc,status
+geom_B_metal_single_bounce,a_FP_LHCP_rx1,36,35,1,1,0.771428571428571,underpowered
+geom_B_metal_single_bounce,a_FP_LHCP_rx2,36,35,1,1,0.314285714285714,underpowered
+geom_B_metal_single_bounce,gamma_CP_rx1,36,35,1,0,0.885714285714286,underpowered
+geom_B_metal_single_bounce,gamma_CP_rx2,36,35,1,0,0.571428571428571,underpowered
+geom_B_glass_partition,a_FP_LHCP_rx1,55,35,20,1,0.802857142857143,ok
+geom_B_glass_partition,a_FP_LHCP_rx2,55,35,20,1,0.805714285714286,ok
+geom_B_glass_partition,gamma_CP_rx1,55,35,20,0,0.62,ok
+geom_B_glass_partition,gamma_CP_rx2,55,35,20,0,0.41,ok
+geom_C_dense_clutter_all,a_FP_LHCP_rx1,56,21,35,1,0.771428571428571,ok
+geom_C_dense_clutter_all,a_FP_LHCP_rx2,56,21,35,1,0.843537414965986,ok
+geom_C_dense_clutter_all,gamma_CP_rx1,56,21,35,0,0.710204081632653,ok
+geom_C_dense_clutter_all,gamma_CP_rx2,56,21,35,0,0.374149659863946,ok

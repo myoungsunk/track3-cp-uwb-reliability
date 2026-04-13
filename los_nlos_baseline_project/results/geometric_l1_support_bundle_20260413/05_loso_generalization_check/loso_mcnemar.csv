@@ -1,0 +1,3 @@
+direction,train_scenario,test_scenario,baseline_correct_proposed_wrong,baseline_wrong_proposed_correct,p_value_exact
+B_to_C,B,C,6,7,1.0
+C_to_B,C,B,7,13,0.26317596435546875

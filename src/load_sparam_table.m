@@ -39,6 +39,12 @@ if input_format ~= "mp" && input_format ~= "ri"
     error('[load_sparam_table] params.input_format must be ''mp'' or ''ri''.');
 end
 
+has_cp4_channels = false;
+S21_rhcp_rx1 = [];
+S21_rhcp_rx2 = [];
+S21_lhcp_rx1 = [];
+S21_lhcp_rx2 = [];
+
 if input_format == "mp"
     col_mag_rx1 = resolve_column(raw_names, get_param(params, 'col_mag_rx1', ''), ...
         {'mag_S_rx1_p1_tx_p1___', 'mag_S21_', 'mag_S21', 'mag_s21', 'mag_s_rx1_p1_tx_p1'});
@@ -70,6 +76,42 @@ if input_format == "mp"
 
     S21_rx1 = mag_rx1 .* exp(1j * phase_rx1_rad);
     S21_rx2 = mag_rx2 .* exp(1j * phase_rx2_rad);
+
+    % Optional 4-channel CP columns:
+    %   RHCP_rx1, LHCP_rx1, RHCP_rx2, LHCP_rx2
+    S21_rhcp_rx1 = S21_rx1;
+    S21_rhcp_rx2 = S21_rx2;
+
+    col_mag_lhcp_rx1 = try_resolve_column(raw_names, get_param(params, 'col_mag_lhcp_rx1', ''), ...
+        {'mag_S_LHCP_rx1_p1_tx_p1___', 'mag_s_lhcp_rx1_p1_tx_p1'});
+    col_phase_lhcp_rx1 = try_resolve_column(raw_names, first_nonempty( ...
+        get_param(params, 'col_phase_lhcp_rx1', ''), get_param(params, 'col_ang_lhcp_rx1', '')), ...
+        {'ang_deg_S_LHCP_rx1_p1_tx_p1___deg_', 'ang_deg_s_lhcp_rx1_p1_tx_p1'});
+    col_mag_lhcp_rx2 = try_resolve_column(raw_names, get_param(params, 'col_mag_lhcp_rx2', ''), ...
+        {'mag_S_LHCP_rx2_p1_tx_p1___', 'mag_s_lhcp_rx2_p1_tx_p1'});
+    col_phase_lhcp_rx2 = try_resolve_column(raw_names, first_nonempty( ...
+        get_param(params, 'col_phase_lhcp_rx2', ''), get_param(params, 'col_ang_lhcp_rx2', '')), ...
+        {'ang_deg_S_LHCP_rx2_p1_tx_p1___deg_', 'ang_deg_s_lhcp_rx2_p1_tx_p1'});
+
+    has_lhcp_cols = all(strlength([col_mag_lhcp_rx1, col_phase_lhcp_rx1, col_mag_lhcp_rx2, col_phase_lhcp_rx2]) > 0);
+    if has_lhcp_cols
+        mag_lhcp_rx1 = double(raw_table.(char(col_mag_lhcp_rx1)));
+        mag_lhcp_rx2 = double(raw_table.(char(col_mag_lhcp_rx2)));
+        phase_lhcp_rx1 = double(raw_table.(char(col_phase_lhcp_rx1)));
+        phase_lhcp_rx2 = double(raw_table.(char(col_phase_lhcp_rx2)));
+
+        if phase_unit == "deg"
+            phase_lhcp_rx1_rad = deg2rad(phase_lhcp_rx1);
+            phase_lhcp_rx2_rad = deg2rad(phase_lhcp_rx2);
+        else
+            phase_lhcp_rx1_rad = phase_lhcp_rx1;
+            phase_lhcp_rx2_rad = phase_lhcp_rx2;
+        end
+
+        S21_lhcp_rx1 = mag_lhcp_rx1 .* exp(1j * phase_lhcp_rx1_rad);
+        S21_lhcp_rx2 = mag_lhcp_rx2 .* exp(1j * phase_lhcp_rx2_rad);
+        has_cp4_channels = true;
+    end
 else
     col_re_rx1 = resolve_column(raw_names, get_param(params, 'col_re_rx1', ''), ...
         {'re_S_rx1_p1_tx_p1___', 'real_S21_', 're_S21_', 're_s21'});
@@ -114,6 +156,14 @@ valid_mask = isfinite(x_coord_mm) & isfinite(y_coord_mm) & isfinite(freq_ghz) & 
     isfinite(real(S21_rx1)) & isfinite(imag(S21_rx1)) & ...
     isfinite(real(S21_rx2)) & isfinite(imag(S21_rx2));
 
+if has_cp4_channels
+    valid_mask = valid_mask & ...
+        isfinite(real(S21_rhcp_rx1)) & isfinite(imag(S21_rhcp_rx1)) & ...
+        isfinite(real(S21_lhcp_rx1)) & isfinite(imag(S21_lhcp_rx1)) & ...
+        isfinite(real(S21_rhcp_rx2)) & isfinite(imag(S21_rhcp_rx2)) & ...
+        isfinite(real(S21_lhcp_rx2)) & isfinite(imag(S21_lhcp_rx2));
+end
+
 if any(~valid_mask)
     warning('[load_sparam_table] %d rows dropped due to non-finite values.', sum(~valid_mask));
 end
@@ -124,6 +174,12 @@ freq_ghz = freq_ghz(valid_mask);
 S21_rx1 = S21_rx1(valid_mask);
 S21_rx2 = S21_rx2(valid_mask);
 inc_ang_deg = inc_ang_deg(valid_mask);
+if has_cp4_channels
+    S21_rhcp_rx1 = S21_rhcp_rx1(valid_mask);
+    S21_lhcp_rx1 = S21_lhcp_rx1(valid_mask);
+    S21_rhcp_rx2 = S21_rhcp_rx2(valid_mask);
+    S21_lhcp_rx2 = S21_lhcp_rx2(valid_mask);
+end
 
 if has_inc_ang
     group_keys = [x_coord_mm, y_coord_mm, inc_ang_deg];
@@ -150,6 +206,13 @@ freq_table = table( ...
 
 if has_inc_ang
     freq_table.inc_ang_deg = inc_ang_deg;
+end
+
+if has_cp4_channels
+    freq_table.S21_rhcp_rx1 = S21_rhcp_rx1;
+    freq_table.S21_lhcp_rx1 = S21_lhcp_rx1;
+    freq_table.S21_rhcp_rx2 = S21_rhcp_rx2;
+    freq_table.S21_lhcp_rx2 = S21_lhcp_rx2;
 end
 end
 

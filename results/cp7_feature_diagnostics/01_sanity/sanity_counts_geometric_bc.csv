@@ -1,0 +1,2 @@
+label_mode,scope,n_total,n_label_valid,n_label_missing,n_los,n_nlos,n_all_features_valid,n_joint_valid
+geometric_class,B+C,112,112,0,56,56,112,112

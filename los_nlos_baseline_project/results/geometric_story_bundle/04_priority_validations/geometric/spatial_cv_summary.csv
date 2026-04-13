@@ -1,0 +1,3 @@
+scope,variant_name,cv_strategy,n_samples,n_los,n_nlos,n_folds,auc,brier_score,accuracy
+B+C,baseline,leave_one_position_out,112,56,56,112,0.840561224489796,0.161457468836072,0.758928571428571
+B+C,full_proposed,leave_one_position_out,112,56,56,112,0.90656887755102,0.117717588387548,0.866071428571429

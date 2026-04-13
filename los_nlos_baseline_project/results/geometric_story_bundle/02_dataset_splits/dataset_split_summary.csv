@@ -1,0 +1,13 @@
+split_name,description,source_dir,n_samples,n_los,n_nlos
+cp7_target_dataset_raw,"Joined CP7-capable geometric dataset before valid_for_cp7_model filtering",D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle\02_dataset_splits,112,56,56
+cp7_target_dataset_valid,"Rows used for CP7 modeling after valid_for_cp7_model filtering",D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle\02_dataset_splits,112,56,56
+scope_B,"Scenario B only",D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle\02_dataset_splits,56,35,21
+scope_C,"Scenario C only",D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle\02_dataset_splits,56,21,35
+scope_BplusC,"Scenario B and C combined",D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle\02_dataset_splits,112,56,56
+hard_case_B,"Baseline confidence in [0.4, 0.6], scenario B",D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle\02_dataset_splits,9,4,5
+hard_case_C,"Baseline confidence in [0.4, 0.6], scenario C",D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle\02_dataset_splits,8,3,5
+hard_case_BplusC,"Baseline confidence in [0.4, 0.6], scenario B+C",D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle\02_dataset_splits,17,7,10
+baseline_errors_BplusC,"Baseline misclassifications on B+C",D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle\02_dataset_splits,26,12,14
+proposed_errors_BplusC,"Proposed misclassifications on B+C",D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle\02_dataset_splits,17,7,10
+rescued_by_cp7_BplusC,"Baseline wrong but CP7-correct on B+C",D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle\02_dataset_splits,12,8,4
+harmed_by_cp7_BplusC,"Baseline correct but CP7-wrong on B+C",D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle\02_dataset_splits,3,3,0

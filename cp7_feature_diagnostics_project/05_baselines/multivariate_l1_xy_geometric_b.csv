@@ -1,0 +1,2 @@
+label_mode,scope,status,n_valid,n_los,n_nlos,auc,accuracy,lambda,n_selected,selected_features,warning_message
+geometric_class,B,ok,56,35,21,0.857823129251701,0.75,0.0587467305102144,3,"gamma_CP_rx1, a_FP_LHCP_rx1, x_m",

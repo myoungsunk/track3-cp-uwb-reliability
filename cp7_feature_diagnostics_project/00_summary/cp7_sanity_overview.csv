@@ -1,0 +1,7 @@
+label_mode,scope,n_total,n_label_valid,n_label_missing,n_los,n_nlos,n_all_features_valid,n_joint_valid,local_k,analysis_status,skip_reason
+geometric_class,B,56,56,0,35,21,56,56,15,ok,
+geometric_class,C,56,56,0,21,35,56,56,15,ok,
+geometric_class,B+C,112,112,0,56,56,112,112,30,ok,
+material_class,B,56,56,0,55,1,56,56,15,skipped_minority_scope,minority class count 1 < 2
+material_class,C,56,56,0,40,16,56,56,15,ok,
+material_class,B+C,112,112,0,95,17,112,112,30,ok,

@@ -1,0 +1,2 @@
+n_samples,baseline_errors,proposed_errors,rescued_by_proposed,harmed_by_proposed,net_error_gain,rescue_rate_given_baseline_error,harm_rate_given_baseline_correct
+112,26,17,12,3,9,0.461538461538462,0.0348837209302326

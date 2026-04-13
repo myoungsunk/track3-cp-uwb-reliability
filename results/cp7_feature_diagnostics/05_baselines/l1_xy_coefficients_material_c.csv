@@ -1,0 +1,10 @@
+predictor_name,coefficient,selected
+gamma_CP_rx1,0.452312579533596,1
+gamma_CP_rx2,0.312010519531119,1
+a_FP_RHCP_rx1,0.394440432132688,1
+a_FP_LHCP_rx1,0.0798295968665044,1
+a_FP_RHCP_rx2,0.867091800189042,1
+a_FP_LHCP_rx2,0.0101966290757479,1
+fp_idx_diff_rx12,0,0
+x_m,0,0
+y_m,0,0

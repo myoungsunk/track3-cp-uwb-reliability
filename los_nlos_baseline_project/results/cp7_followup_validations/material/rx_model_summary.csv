@@ -1,0 +1,10 @@
+scope,model_name,n_samples,n_los,n_nlos,status,auc,brier_score,accuracy
+B,baseline_plus_rx1,56,55,1,insufficient_scope,NaN,NaN,NaN
+B,baseline_plus_rx2,56,55,1,insufficient_scope,NaN,NaN,NaN
+B,baseline_plus_dual,56,55,1,insufficient_scope,NaN,NaN,NaN
+C,baseline_plus_rx1,56,40,16,ok,0.915625,0.112079566133475,0.839285714285714
+C,baseline_plus_rx2,56,40,16,ok,0.9234375,0.10997669906659,0.839285714285714
+C,baseline_plus_dual,56,40,16,ok,0.9140625,0.114686014114051,0.839285714285714
+B+C,baseline_plus_rx1,112,95,17,ok,0.947368421052632,0.0808071000657806,0.892857142857143
+B+C,baseline_plus_rx2,112,95,17,ok,0.945510835913313,0.0864225455751208,0.901785714285714
+B+C,baseline_plus_dual,112,95,17,ok,0.941795665634675,0.0840599986566259,0.883928571428571

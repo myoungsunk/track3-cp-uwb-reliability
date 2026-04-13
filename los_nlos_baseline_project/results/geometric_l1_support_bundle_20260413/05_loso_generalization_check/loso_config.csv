@@ -1,0 +1,9 @@
+key,value
+implementation,sklearn_logistic_independent_validation
+class_weight,balanced
+normalization,train_only_standard_scaler
+logistic_c,100.0
+solver,lbfgs
+max_iter,10000
+baseline_features,"fp_energy_db, skewness_pdp, kurtosis_pdp, mean_excess_delay_ns, rms_delay_spread_ns"
+cp7_features,"gamma_CP_rx1, gamma_CP_rx2, a_FP_RHCP_rx1, a_FP_LHCP_rx1, a_FP_RHCP_rx2, a_FP_LHCP_rx2"

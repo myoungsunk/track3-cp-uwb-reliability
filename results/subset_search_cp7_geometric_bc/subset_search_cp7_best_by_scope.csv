@@ -1,0 +1,4 @@
+scope,subset_id,n_features,feature_set,auc,accuracy,n_samples,n_los,n_nlos
+B,S9,2,gamma_CP_rx1 + a_FP_LHCP_rx1,0.848571428571429,0.857575757575758,56,35,21
+C,S57,4,gamma_CP_rx1 + a_FP_LHCP_rx1 + a_FP_RHCP_rx2 + a_FP_LHCP_rx2,0.9,0.804545454545454,56,21,35
+B+C,S111,6,gamma_CP_rx1 + gamma_CP_rx2 + a_FP_RHCP_rx1 + a_FP_LHCP_rx1 + a_FP_LHCP_rx2 + fp_idx_diff_rx12,0.839944903581267,0.741106719367589,112,56,56

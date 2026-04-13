@@ -1,0 +1,3 @@
+subset_name,n_samples,baseline_correct_proposed_wrong,baseline_wrong_proposed_correct,chi_square_cc,p_value_exact
+overall,336,12,3,4.26666666666667,0.03515625
+hard_case_0p4_0p6,92,12,2,5.78571428571429,0.012939453125

@@ -1,0 +1,2 @@
+n_baseline_rows,n_cp7_rows_joined,n_distinct_baseline_keys,n_distinct_joined_keys,n_unmatched_baseline_keys,n_joined_rows,n_label_mismatch,n_valid_for_cp7_model,n_los_valid,n_nlos_valid
+112,112,112,112,0,112,0,112,95,17

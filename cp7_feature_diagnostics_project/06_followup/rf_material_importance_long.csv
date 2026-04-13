@@ -1,0 +1,15 @@
+label_mode,scope,predictor_name,permuted_delta_error
+material_class,C,gamma_CP_rx1,0.692596644618404
+material_class,C,gamma_CP_rx2,-0.0249126973191844
+material_class,C,a_FP_RHCP_rx1,0.185376894333779
+material_class,C,a_FP_LHCP_rx1,0.71700936831742
+material_class,C,a_FP_RHCP_rx2,0.620271057575293
+material_class,C,a_FP_LHCP_rx2,0.198905176839392
+material_class,C,fp_idx_diff_rx12,-0.0503742674268823
+material_class,B+C,gamma_CP_rx1,0.616110054074053
+material_class,B+C,gamma_CP_rx2,0.448607479567206
+material_class,B+C,a_FP_RHCP_rx1,0.859730046867305
+material_class,B+C,a_FP_LHCP_rx1,0.387070204016536
+material_class,B+C,a_FP_RHCP_rx2,0.478497148930309
+material_class,B+C,a_FP_LHCP_rx2,0.221337778135484
+material_class,B+C,fp_idx_diff_rx12,0.198160140422672

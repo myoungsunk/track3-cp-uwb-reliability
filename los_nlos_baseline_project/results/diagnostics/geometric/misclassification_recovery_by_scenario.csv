@@ -1,0 +1,4 @@
+group_type,group_name,n_samples,baseline_errors,proposed_errors,rescued_by_proposed,harmed_by_proposed,net_error_gain,rescue_rate_given_baseline_error
+scenario,C,112,37,41,1,5,-4,0.027027027027027
+scenario,B,112,42,42,2,2,0,0.0476190476190476
+scenario,A,112,38,43,0,5,-5,0

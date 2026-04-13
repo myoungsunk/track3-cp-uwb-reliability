@@ -1,0 +1,7 @@
+﻿"run_name","scenario","label_type","N","LoS","NLoS","status","logistic_cv_auc","logistic_eval_auc","best_model","best_model_auc","best_ablation","best_ablation_auc"
+"caseA_4port_material","A","material","56","56","0","single_class",,,,,,
+"caseA_4port_geometric","A","geometric","56","56","0","single_class",,,,,,
+"caseB_4port_material","B","material","56","55","1","minority_lt_10",,,,,,
+"caseB_4port_geometric","B","geometric","56","35","21","ok","0.657142857142857","0.653061224489796","RandomForest","0.914965986394558","a_FP_only","0.664285714285714"
+"caseC_4port_material","C","material","56","40","16","ok","0.8625","0.834375","Logistic","0.8625","combined","0.8625"
+"caseC_4port_geometric","C","geometric","56","21","35","ok","0.737142857142857","0.759183673469388","Logistic","0.737142857142857","a_FP_only","0.765714285714286"

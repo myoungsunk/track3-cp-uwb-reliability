@@ -1,0 +1,2 @@
+label_mode,scope,status,n_valid,n_los,n_nlos,auc,accuracy,lambda,n_selected,selected_features,warning_message
+material_class,B,skipped_minority_scope,NaN,NaN,NaN,NaN,NaN,NaN,NaN,,minority class count 1 < 2

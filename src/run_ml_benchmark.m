@@ -36,38 +36,91 @@ catch exception_info
     metrics_dnn = empty_metrics('DNN');
 end
 
+metrics_list = {metrics_logistic, metrics_svm, metrics_rf, metrics_dnn};
+include_lightweight_models = logical(get_param(params, 'include_lightweight_models', true));
+if include_lightweight_models
+    try
+        metrics_lda = benchmark_lda(features, labels, params, cv);
+    catch exception_info
+        warning('[run_ml_benchmark] LDA benchmark skipped: %s', exception_info.message);
+        metrics_lda = empty_metrics('LDA');
+    end
+
+    try
+        metrics_qda = benchmark_qda(features, labels, params, cv);
+    catch exception_info
+        warning('[run_ml_benchmark] QDA benchmark skipped: %s', exception_info.message);
+        metrics_qda = empty_metrics('QDA');
+    end
+
+    try
+        metrics_linear_svm = benchmark_linear_svm(features, labels, params, cv);
+    catch exception_info
+        warning('[run_ml_benchmark] LinearSVM benchmark skipped: %s', exception_info.message);
+        metrics_linear_svm = empty_metrics('LinearSVM');
+    end
+
+    try
+        metrics_tiny_tree = benchmark_tiny_tree(features, labels, params, cv);
+    catch exception_info
+        warning('[run_ml_benchmark] TinyTree benchmark skipped: %s', exception_info.message);
+        metrics_tiny_tree = empty_metrics('TinyTree');
+    end
+
+    try
+        metrics_logistic_quad = benchmark_logistic_quadratic(features, labels, params, cv);
+    catch exception_info
+        warning('[run_ml_benchmark] LogisticQuad benchmark skipped: %s', exception_info.message);
+        metrics_logistic_quad = empty_metrics('LogisticQuad');
+    end
+
+    metrics_list = [metrics_list, {metrics_lda, metrics_qda, metrics_linear_svm, metrics_tiny_tree, metrics_logistic_quad}]; %#ok<AGROW>
+end
+
+n_model = numel(metrics_list);
+model_name_col = strings(n_model, 1);
+auc_col = nan(n_model, 1);
+accuracy_col = nan(n_model, 1);
+f1_col = nan(n_model, 1);
+ece_col = nan(n_model, 1);
+flops_col = nan(n_model, 1);
+n_parameters_col = nan(n_model, 1);
+train_time_col = nan(n_model, 1);
+infer_time_col = nan(n_model, 1);
+
+for idx = 1:n_model
+    metrics_i = metrics_list{idx};
+    model_name_col(idx) = string(metrics_i.model_name);
+    auc_col(idx) = metrics_i.auc;
+    accuracy_col(idx) = metrics_i.accuracy;
+    f1_col(idx) = metrics_i.f1;
+    ece_col(idx) = metrics_i.ece;
+    flops_col(idx) = metrics_i.flops;
+    n_parameters_col(idx) = metrics_i.n_parameters;
+    train_time_col(idx) = metrics_i.train_time_s;
+    infer_time_col(idx) = metrics_i.infer_time_us;
+end
+
 benchmark_results = table( ...
-    string({metrics_logistic.model_name; metrics_svm.model_name; metrics_rf.model_name; metrics_dnn.model_name}), ...
-    [metrics_logistic.auc; metrics_svm.auc; metrics_rf.auc; metrics_dnn.auc], ...
-    [metrics_logistic.accuracy; metrics_svm.accuracy; metrics_rf.accuracy; metrics_dnn.accuracy], ...
-    [metrics_logistic.f1; metrics_svm.f1; metrics_rf.f1; metrics_dnn.f1], ...
-    [metrics_logistic.ece; metrics_svm.ece; metrics_rf.ece; metrics_dnn.ece], ...
-    [metrics_logistic.flops; metrics_svm.flops; metrics_rf.flops; metrics_dnn.flops], ...
-    [metrics_logistic.n_parameters; metrics_svm.n_parameters; metrics_rf.n_parameters; metrics_dnn.n_parameters], ...
-    [metrics_logistic.train_time_s; metrics_svm.train_time_s; metrics_rf.train_time_s; metrics_dnn.train_time_s], ...
-    [metrics_logistic.infer_time_us; metrics_svm.infer_time_us; metrics_rf.infer_time_us; metrics_dnn.infer_time_us], ...
+    model_name_col, ...
+    auc_col, ...
+    accuracy_col, ...
+    f1_col, ...
+    ece_col, ...
+    flops_col, ...
+    n_parameters_col, ...
+    train_time_col, ...
+    infer_time_col, ...
     'VariableNames', {'model_name', 'auc', 'accuracy', 'f1', 'ece', 'flops', 'n_parameters', 'train_time_s', 'infer_time_us'});
 
-roc_curves = struct([]);
-roc_curves(1).model_name = metrics_logistic.model_name;
-roc_curves(1).fpr = metrics_logistic.roc_fpr;
-roc_curves(1).tpr = metrics_logistic.roc_tpr;
-roc_curves(1).auc = metrics_logistic.auc;
-
-roc_curves(2).model_name = metrics_svm.model_name;
-roc_curves(2).fpr = metrics_svm.roc_fpr;
-roc_curves(2).tpr = metrics_svm.roc_tpr;
-roc_curves(2).auc = metrics_svm.auc;
-
-roc_curves(3).model_name = metrics_rf.model_name;
-roc_curves(3).fpr = metrics_rf.roc_fpr;
-roc_curves(3).tpr = metrics_rf.roc_tpr;
-roc_curves(3).auc = metrics_rf.auc;
-
-roc_curves(4).model_name = metrics_dnn.model_name;
-roc_curves(4).fpr = metrics_dnn.roc_fpr;
-roc_curves(4).tpr = metrics_dnn.roc_tpr;
-roc_curves(4).auc = metrics_dnn.auc;
+roc_curves = repmat(struct('model_name', "", 'fpr', [], 'tpr', [], 'auc', NaN), n_model, 1);
+for idx = 1:n_model
+    metrics_i = metrics_list{idx};
+    roc_curves(idx).model_name = string(metrics_i.model_name);
+    roc_curves(idx).fpr = metrics_i.roc_fpr;
+    roc_curves(idx).tpr = metrics_i.roc_tpr;
+    roc_curves(idx).auc = metrics_i.auc;
+end
 
 benchmark_results.Properties.UserData.roc_curves = roc_curves;
 
@@ -270,9 +323,305 @@ if isfinite(auc_all)
 end
 end
 
+function metrics = benchmark_lda(features, labels, params, cv)
+n_folds = cv.NumTestSets;
+auc_list = nan(n_folds, 1);
+acc_list = nan(n_folds, 1);
+f1_list = nan(n_folds, 1);
+ece_list = nan(n_folds, 1);
+scores_oof = nan(size(labels));
+
+for fold_idx = 1:n_folds
+    train_idx = training(cv, fold_idx);
+    test_idx = test(cv, fold_idx);
+
+    x_train = features(train_idx, :);
+    y_train = labels(train_idx);
+    x_test = features(test_idx, :);
+    y_test = labels(test_idx);
+
+    [x_train_norm, norm_info] = normalize_binary(x_train);
+    x_test_norm = apply_norm_binary(x_test, norm_info);
+
+    lda_mdl = fitcdiscr(x_train_norm, y_train, 'DiscrimType', 'linear');
+    [~, score_fold] = predict(lda_mdl, x_test_norm);
+    prob_fold = get_positive_score(score_fold, lda_mdl.ClassNames);
+    scores_oof(test_idx) = prob_fold;
+
+    fold_metrics = binary_metrics(prob_fold, y_test, get_param(params, 'ece_num_bins', 10));
+    auc_list(fold_idx) = fold_metrics.auc;
+    acc_list(fold_idx) = fold_metrics.accuracy;
+    f1_list(fold_idx) = fold_metrics.f1;
+    ece_list(fold_idx) = fold_metrics.ece;
+end
+
+train_start = tic;
+[x_all_norm, norm_all] = normalize_binary(features);
+lda_full = fitcdiscr(x_all_norm, labels, 'DiscrimType', 'linear');
+train_time_s = toc(train_start);
+
+input_dim = size(features, 2);
+flops = 2 * input_dim + 1;
+n_parameters = (2 * input_dim) + (input_dim * (input_dim + 1) / 2);
+
+x_single = apply_norm_binary(features(1, :), norm_all);
+infer_time_us = measure_inference_time(@(x) predict(lda_full, x), x_single);
+
+[~, ~, ~, auc_all] = perfcurve(labels, scores_oof, true);
+[fpr_all, tpr_all] = perfcurve(labels, scores_oof, true);
+
+metrics = struct();
+metrics.model_name = 'LDA';
+metrics.auc = mean(auc_list, 'omitnan');
+metrics.accuracy = mean(acc_list, 'omitnan');
+metrics.f1 = mean(f1_list, 'omitnan');
+metrics.ece = mean(ece_list, 'omitnan');
+metrics.flops = flops;
+metrics.n_parameters = n_parameters;
+metrics.train_time_s = train_time_s;
+metrics.infer_time_us = infer_time_us;
+metrics.roc_fpr = fpr_all;
+metrics.roc_tpr = tpr_all;
+
+if isfinite(auc_all)
+    metrics.auc = auc_all;
+end
+end
+
+function metrics = benchmark_qda(features, labels, params, cv)
+n_folds = cv.NumTestSets;
+auc_list = nan(n_folds, 1);
+acc_list = nan(n_folds, 1);
+f1_list = nan(n_folds, 1);
+ece_list = nan(n_folds, 1);
+scores_oof = nan(size(labels));
+
+for fold_idx = 1:n_folds
+    train_idx = training(cv, fold_idx);
+    test_idx = test(cv, fold_idx);
+
+    x_train = features(train_idx, :);
+    y_train = labels(train_idx);
+    x_test = features(test_idx, :);
+    y_test = labels(test_idx);
+
+    [x_train_norm, norm_info] = normalize_binary(x_train);
+    x_test_norm = apply_norm_binary(x_test, norm_info);
+
+    qda_mdl = fitcdiscr(x_train_norm, y_train, 'DiscrimType', 'quadratic');
+    [~, score_fold] = predict(qda_mdl, x_test_norm);
+    prob_fold = get_positive_score(score_fold, qda_mdl.ClassNames);
+    scores_oof(test_idx) = prob_fold;
+
+    fold_metrics = binary_metrics(prob_fold, y_test, get_param(params, 'ece_num_bins', 10));
+    auc_list(fold_idx) = fold_metrics.auc;
+    acc_list(fold_idx) = fold_metrics.accuracy;
+    f1_list(fold_idx) = fold_metrics.f1;
+    ece_list(fold_idx) = fold_metrics.ece;
+end
+
+train_start = tic;
+[x_all_norm, norm_all] = normalize_binary(features);
+qda_full = fitcdiscr(x_all_norm, labels, 'DiscrimType', 'quadratic');
+train_time_s = toc(train_start);
+
+input_dim = size(features, 2);
+flops = input_dim * input_dim + (3 * input_dim) + 2;
+n_parameters = 2 * (input_dim + input_dim * (input_dim + 1) / 2);
+
+x_single = apply_norm_binary(features(1, :), norm_all);
+infer_time_us = measure_inference_time(@(x) predict(qda_full, x), x_single);
+
+[~, ~, ~, auc_all] = perfcurve(labels, scores_oof, true);
+[fpr_all, tpr_all] = perfcurve(labels, scores_oof, true);
+
+metrics = struct();
+metrics.model_name = 'QDA';
+metrics.auc = mean(auc_list, 'omitnan');
+metrics.accuracy = mean(acc_list, 'omitnan');
+metrics.f1 = mean(f1_list, 'omitnan');
+metrics.ece = mean(ece_list, 'omitnan');
+metrics.flops = flops;
+metrics.n_parameters = n_parameters;
+metrics.train_time_s = train_time_s;
+metrics.infer_time_us = infer_time_us;
+metrics.roc_fpr = fpr_all;
+metrics.roc_tpr = tpr_all;
+
+if isfinite(auc_all)
+    metrics.auc = auc_all;
+end
+end
+
+function metrics = benchmark_linear_svm(features, labels, params, cv)
+random_seed = get_param(params, 'random_seed', 42);
+n_folds = cv.NumTestSets;
+auc_list = nan(n_folds, 1);
+acc_list = nan(n_folds, 1);
+f1_list = nan(n_folds, 1);
+ece_list = nan(n_folds, 1);
+scores_oof = nan(size(labels));
+
+for fold_idx = 1:n_folds
+    train_idx = training(cv, fold_idx);
+    test_idx = test(cv, fold_idx);
+
+    x_train = features(train_idx, :);
+    y_train = labels(train_idx);
+    x_test = features(test_idx, :);
+    y_test = labels(test_idx);
+
+    [x_train_norm, norm_info] = normalize_binary(x_train);
+    x_test_norm = apply_norm_binary(x_test, norm_info);
+
+    rng(random_seed + fold_idx);
+    svm_lin = fitcsvm(x_train_norm, y_train, 'KernelFunction', 'linear', 'Standardize', true);
+    svm_lin = fitPosterior(svm_lin);
+    [~, score_fold] = predict(svm_lin, x_test_norm);
+    prob_fold = get_positive_score(score_fold, svm_lin.ClassNames);
+    scores_oof(test_idx) = prob_fold;
+
+    fold_metrics = binary_metrics(prob_fold, y_test, get_param(params, 'ece_num_bins', 10));
+    auc_list(fold_idx) = fold_metrics.auc;
+    acc_list(fold_idx) = fold_metrics.accuracy;
+    f1_list(fold_idx) = fold_metrics.f1;
+    ece_list(fold_idx) = fold_metrics.ece;
+end
+
+train_start = tic;
+[x_all_norm, norm_all] = normalize_binary(features);
+rng(random_seed);
+svm_lin_full = fitcsvm(x_all_norm, labels, 'KernelFunction', 'linear', 'Standardize', true);
+svm_lin_full = fitPosterior(svm_lin_full);
+train_time_s = toc(train_start);
+
+input_dim = size(features, 2);
+flops = 2 * input_dim + 1;
+n_parameters = input_dim + 1;
+
+x_single = apply_norm_binary(features(1, :), norm_all);
+infer_time_us = measure_inference_time(@(x) predict(svm_lin_full, x), x_single);
+
+[~, ~, ~, auc_all] = perfcurve(labels, scores_oof, true);
+[fpr_all, tpr_all] = perfcurve(labels, scores_oof, true);
+
+metrics = struct();
+metrics.model_name = 'LinearSVM';
+metrics.auc = mean(auc_list, 'omitnan');
+metrics.accuracy = mean(acc_list, 'omitnan');
+metrics.f1 = mean(f1_list, 'omitnan');
+metrics.ece = mean(ece_list, 'omitnan');
+metrics.flops = flops;
+metrics.n_parameters = n_parameters;
+metrics.train_time_s = train_time_s;
+metrics.infer_time_us = infer_time_us;
+metrics.roc_fpr = fpr_all;
+metrics.roc_tpr = tpr_all;
+
+if isfinite(auc_all)
+    metrics.auc = auc_all;
+end
+end
+
+function metrics = benchmark_tiny_tree(features, labels, params, cv)
+max_splits = get_param(params, 'tiny_tree_max_splits', 3);
+min_leaf_size = get_param(params, 'tiny_tree_min_leaf_size', 5);
+n_folds = cv.NumTestSets;
+auc_list = nan(n_folds, 1);
+acc_list = nan(n_folds, 1);
+f1_list = nan(n_folds, 1);
+ece_list = nan(n_folds, 1);
+scores_oof = nan(size(labels));
+
+for fold_idx = 1:n_folds
+    train_idx = training(cv, fold_idx);
+    test_idx = test(cv, fold_idx);
+
+    x_train = features(train_idx, :);
+    y_train = labels(train_idx);
+    x_test = features(test_idx, :);
+    y_test = labels(test_idx);
+
+    [x_train_norm, norm_info] = normalize_binary(x_train);
+    x_test_norm = apply_norm_binary(x_test, norm_info);
+
+    tree_mdl = fitctree(x_train_norm, y_train, 'MaxNumSplits', max_splits, 'MinLeafSize', min_leaf_size);
+    [~, score_fold] = predict(tree_mdl, x_test_norm);
+    prob_fold = get_positive_score(score_fold, tree_mdl.ClassNames);
+    scores_oof(test_idx) = prob_fold;
+
+    fold_metrics = binary_metrics(prob_fold, y_test, get_param(params, 'ece_num_bins', 10));
+    auc_list(fold_idx) = fold_metrics.auc;
+    acc_list(fold_idx) = fold_metrics.accuracy;
+    f1_list(fold_idx) = fold_metrics.f1;
+    ece_list(fold_idx) = fold_metrics.ece;
+end
+
+train_start = tic;
+[x_all_norm, norm_all] = normalize_binary(features);
+tree_full = fitctree(x_all_norm, labels, 'MaxNumSplits', max_splits, 'MinLeafSize', min_leaf_size);
+train_time_s = toc(train_start);
+
+flops = tree_depth(tree_full);
+n_parameters = double(tree_full.NumNodes);
+
+x_single = apply_norm_binary(features(1, :), norm_all);
+infer_time_us = measure_inference_time(@(x) predict(tree_full, x), x_single);
+
+[~, ~, ~, auc_all] = perfcurve(labels, scores_oof, true);
+[fpr_all, tpr_all] = perfcurve(labels, scores_oof, true);
+
+metrics = struct();
+metrics.model_name = 'TinyTree';
+metrics.auc = mean(auc_list, 'omitnan');
+metrics.accuracy = mean(acc_list, 'omitnan');
+metrics.f1 = mean(f1_list, 'omitnan');
+metrics.ece = mean(ece_list, 'omitnan');
+metrics.flops = flops;
+metrics.n_parameters = n_parameters;
+metrics.train_time_s = train_time_s;
+metrics.infer_time_us = infer_time_us;
+metrics.roc_fpr = fpr_all;
+metrics.roc_tpr = tpr_all;
+
+if isfinite(auc_all)
+    metrics.auc = auc_all;
+end
+end
+
+function metrics = benchmark_logistic_quadratic(features, labels, params, cv)
+params_local = params;
+params_local.cv_partition = cv;
+params_local.log10_rcp = false;
+
+features_quad = expand_quadratic_features(features);
+train_start = tic;
+[model, norm_params] = train_logistic(features_quad, labels, params_local);
+train_time_s = toc(train_start);
+
+eval_results = eval_roc_calibration(model, norm_params, features_quad, labels, setfield(params_local, 'save_outputs', false)); %#ok<SFLD>
+
+x_single = prepare_single_input(features_quad, norm_params);
+infer_time_us = measure_inference_time(@(x) predict_logistic_prob(model, x), x_single);
+
+metrics = struct();
+metrics.model_name = 'LogisticQuad';
+metrics.auc = model.cv_auc;
+metrics.accuracy = model.cv_accuracy;
+metrics.f1 = eval_results.f1;
+metrics.ece = eval_results.ece;
+metrics.flops = 2 * size(features_quad, 2) + 1;
+metrics.n_parameters = numel(model.coefficients);
+metrics.train_time_s = train_time_s;
+metrics.infer_time_us = infer_time_us;
+metrics.roc_fpr = eval_results.roc.fpr;
+metrics.roc_tpr = eval_results.roc.tpr;
+end
+
 function metrics = benchmark_dnn(features, labels, params, cv)
 max_epochs = get_param(params, 'dnn_max_epochs', 100);
 mini_batch = get_param(params, 'dnn_mini_batch', 32);
+random_seed = get_param(params, 'random_seed', 42);
 
 n_folds = cv.NumTestSets;
 auc_list = nan(n_folds, 1);
@@ -293,6 +642,7 @@ for fold_idx = 1:n_folds
     [x_train_norm, norm_info] = normalize_binary(x_train);
     x_test_norm = apply_norm_binary(x_test, norm_info);
 
+    rng(random_seed + fold_idx);
     dnn_mdl = train_dnn_model(x_train_norm, y_train, max_epochs, mini_batch);
     score_fold = predict(dnn_mdl, x_test_norm);
     prob_fold = get_positive_score(score_fold, dnn_mdl.Layers(end).Classes);
@@ -307,6 +657,7 @@ end
 
 train_start = tic;
 [x_all_norm, norm_all] = normalize_binary(features);
+rng(random_seed);
 dnn_full = train_dnn_model(x_all_norm, labels, max_epochs, mini_batch);
 train_time_s = toc(train_start);
 
@@ -385,6 +736,16 @@ end
 
 function x_out = apply_norm_binary(x, info)
 x_out = (x - info.mean_values) ./ info.std_values;
+end
+
+function x_quad = expand_quadratic_features(features)
+x1 = double(features(:, 1));
+x2 = double(features(:, 2));
+if any(x1 <= 0)
+    error('[run_ml_benchmark] r_CP values must be > 0 for quadratic logistic expansion.');
+end
+x1_log = log10(x1);
+x_quad = [x1_log, x2, x1_log.^2, x1_log .* x2, x2.^2];
 end
 
 function prob = get_positive_score(score_matrix, class_names)

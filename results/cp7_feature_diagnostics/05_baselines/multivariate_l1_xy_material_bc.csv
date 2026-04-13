@@ -1,0 +1,2 @@
+label_mode,scope,status,n_valid,n_los,n_nlos,auc,accuracy,lambda,n_selected,selected_features,warning_message
+material_class,B+C,ok,112,95,17,0.875541795665635,0.866071428571429,0.0576879359085947,3,"a_FP_RHCP_rx1, a_FP_RHCP_rx2, fp_idx_diff_rx12",

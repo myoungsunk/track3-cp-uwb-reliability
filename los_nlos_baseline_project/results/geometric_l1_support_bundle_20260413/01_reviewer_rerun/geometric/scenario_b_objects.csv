@@ -1,0 +1,4 @@
+scenario,name,material,category,origin_x,origin_y,origin_z,size_x,size_y,size_z,notes
+B,glass_partition_1,glass,partition,2.5,-0.75,-2,0.02,1.5,2.2,Partial LoS blocker near room center; intended to create mixed reflection/transmission behavior.
+B,metal_cabinet_1,metal,cabinet,4.5,-2.1,-2,0.6,0.45,1.8,High-reflectivity object near side wall for strong specular multipath.
+B,wood_desk_1,wood,desk,3.3,1,-2,1.4,0.7,0.75,Low-height wooden reflector; usually weak LoS blocker but useful for floor-level multipath enrichment.

@@ -1,0 +1,13 @@
+key,value
+bundle_root,"D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_l1_support_bundle_20260413"
+reviewer_rerun_dir,"D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_l1_support_bundle_20260413\01_reviewer_rerun"
+priority_rerun_dir,"D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_l1_support_bundle_20260413\02_priority_rerun"
+l1_results_dir,"D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_l1_support_bundle_20260413\03_l1_regularization_check"
+random_seed,"42"
+cv_folds,"5"
+classification_threshold,"0.5"
+l1_num_lambda,"25"
+l1_lambda_ratio,"0.001"
+baseline_features,"fp_energy_db, skewness_pdp, kurtosis_pdp, mean_excess_delay_ns, rms_delay_spread_ns"
+cp7_features,"gamma_CP_rx1, gamma_CP_rx2, a_FP_RHCP_rx1, a_FP_LHCP_rx1, a_FP_RHCP_rx2, a_FP_LHCP_rx2"
+repro_command,"matlab -batch ""cd('los_nlos_baseline_project'); outputs = run_geometric_l1_support_bundle();"""

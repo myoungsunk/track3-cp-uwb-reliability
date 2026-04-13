@@ -1,0 +1,4 @@
+subset_id,feature_set,rf_auc,rf_accuracy,scope
+S15,gamma_CP_rx1 + gamma_CP_rx2 + a_FP_RHCP_rx1 + a_FP_LHCP_rx1,0.863945578231293,0.803571428571429,B
+S45,gamma_CP_rx1 + a_FP_RHCP_rx1 + a_FP_LHCP_rx1 + a_FP_LHCP_rx2,0.818367346938776,0.75,C
+S27,gamma_CP_rx1 + gamma_CP_rx2 + a_FP_LHCP_rx1 + a_FP_RHCP_rx2,0.837372448979592,0.785714285714286,B+C

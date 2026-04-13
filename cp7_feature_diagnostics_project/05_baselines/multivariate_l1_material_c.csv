@@ -1,0 +1,2 @@
+label_mode,scope,status,n_valid,n_los,n_nlos,auc,accuracy,lambda,n_selected,selected_features,warning_message
+material_class,C,ok,56,40,16,0.7625,0.767857142857143,0.0111923138291039,6,"gamma_CP_rx1, gamma_CP_rx2, a_FP_RHCP_rx1, a_FP_LHCP_rx1, a_FP_RHCP_rx2, a_FP_LHCP_rx2",

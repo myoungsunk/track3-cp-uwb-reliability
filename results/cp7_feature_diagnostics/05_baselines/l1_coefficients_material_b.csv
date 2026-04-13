@@ -1,0 +1,8 @@
+predictor_name,coefficient,selected
+gamma_CP_rx1,NaN,0
+gamma_CP_rx2,NaN,0
+a_FP_RHCP_rx1,NaN,0
+a_FP_LHCP_rx1,NaN,0
+a_FP_RHCP_rx2,NaN,0
+a_FP_LHCP_rx2,NaN,0
+fp_idx_diff_rx12,NaN,0

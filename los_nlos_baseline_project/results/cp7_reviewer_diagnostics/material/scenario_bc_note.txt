@@ -1,0 +1,12 @@
+Scenario B/C CP7 note
+Target: material
+Scenario B objects: 3 (glass, metal, wood)
+Scenario C objects: 8 (glass, metal, wood)
+CP_caseB gamma_CP_rx1 AUC=0.909 with n_los=55, n_nlos=1.
+CP_caseB gamma_CP_rx2 AUC=0.691 with n_los=55, n_nlos=1.
+CP_caseC gamma_CP_rx1 AUC=0.770 with n_los=40, n_nlos=16.
+CP_caseC gamma_CP_rx2 AUC=0.583 with n_los=40, n_nlos=16.
+Scenario B label split from export CSV: geometric NLoS=21, material NLoS=1.
+First material-NLoS sample in Scenario B: (5.250, -1.750), tag=T49, hits=metal_cabinet_1, materials=metal, criterion=hard_block_material.
+Scenario B geometric NLoS hit materials: glass, metal.
+Interpretation: CP7 gains should be read as regime-selective. Scenario B material NLoS is driven by an extremely sparse hard-block sample, while Scenario C mixes diffuse interactions that weaken parity cues.

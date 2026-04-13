@@ -1,0 +1,13 @@
+label_target,subset_name,feature_name,n_samples,n_los,n_nlos,focus_feature,n_boot_valid,auc_ci_low,auc_ci_high,p_auc_le_0p5,auc,status
+geometric,geom_B_metal_single_bounce,a_FP_LHCP_rx1,36,35,1,1,651,0.628571428571429,0.914285714285714,0,0.771428571428571,underpowered
+geometric,geom_B_metal_single_bounce,a_FP_LHCP_rx2,36,35,1,1,651,0.171428571428571,0.470588235294118,0.990783410138249,0.314285714285714,underpowered
+geometric,geom_B_metal_single_bounce,gamma_CP_rx1,36,35,1,0,651,0.771428571428571,0.971428571428571,0,0.885714285714286,underpowered
+geometric,geom_B_metal_single_bounce,gamma_CP_rx2,36,35,1,0,651,0.4,0.742857142857143,0.218125960061444,0.571428571428571,underpowered
+geometric,geom_B_glass_partition,a_FP_LHCP_rx1,55,35,20,1,1000,0.675894777265745,0.903706337916864,0,0.802857142857143,ok
+geometric,geom_B_glass_partition,a_FP_LHCP_rx2,55,35,20,1,1000,0.67709471056327,0.911234159779614,0,0.805714285714286,ok
+geometric,geom_B_glass_partition,gamma_CP_rx1,55,35,20,0,1000,0.462435897435897,0.757475797336479,0.073,0.62,ok
+geometric,geom_B_glass_partition,gamma_CP_rx2,55,35,20,0,1000,0.249613003095975,0.577827626918536,0.871,0.41,ok
+geometric,geom_C_dense_clutter_all,a_FP_LHCP_rx1,56,21,35,1,1000,0.63083176985616,0.885198135198135,0,0.771428571428571,ok
+geometric,geom_C_dense_clutter_all,a_FP_LHCP_rx2,56,21,35,1,1000,0.709279612393217,0.941765873015873,0,0.843537414965986,ok
+geometric,geom_C_dense_clutter_all,gamma_CP_rx1,56,21,35,0,1000,0.567654751525719,0.84489312083297,0.001,0.710204081632653,ok
+geometric,geom_C_dense_clutter_all,gamma_CP_rx2,56,21,35,0,1000,0.211597999523696,0.548826458036984,0.942,0.374149659863946,ok

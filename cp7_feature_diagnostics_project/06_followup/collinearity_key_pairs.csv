@@ -1,0 +1,7 @@
+scope,pair_name,feature_a,feature_b,pearson,spearman
+B,a_FP_RHCP_rx1 <-> a_FP_LHCP_rx1,a_FP_RHCP_rx1,a_FP_LHCP_rx1,0.431253676139026,0.398154477101846
+B,gamma_CP_rx1 <-> gamma_CP_rx2,gamma_CP_rx1,gamma_CP_rx2,-0.614379570451212,-0.675803144224197
+C,a_FP_RHCP_rx1 <-> a_FP_LHCP_rx1,a_FP_RHCP_rx1,a_FP_LHCP_rx1,0.579913682725238,0.582365003417635
+C,gamma_CP_rx1 <-> gamma_CP_rx2,gamma_CP_rx1,gamma_CP_rx2,-0.371563827680828,-0.402323991797676
+B+C,a_FP_RHCP_rx1 <-> a_FP_LHCP_rx1,a_FP_RHCP_rx1,a_FP_LHCP_rx1,0.530549265159902,0.535748453890047
+B+C,gamma_CP_rx1 <-> gamma_CP_rx2,gamma_CP_rx1,gamma_CP_rx2,-0.445236922680647,-0.497958451498275

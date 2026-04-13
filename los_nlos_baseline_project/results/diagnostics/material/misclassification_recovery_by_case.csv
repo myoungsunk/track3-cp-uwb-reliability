@@ -1,0 +1,7 @@
+group_type,group_name,n_samples,baseline_errors,proposed_errors,rescued_by_proposed,harmed_by_proposed,net_error_gain,rescue_rate_given_baseline_error
+case_name,CP_caseC,56,7,7,1,1,0,0.142857142857143
+case_name,LP_caseA,56,8,8,1,1,0,0.125
+case_name,LP_caseC,56,16,16,2,2,0,0.125
+case_name,CP_caseB,56,3,4,0,1,-1,0
+case_name,LP_caseB,56,21,22,0,1,-1,0
+case_name,CP_caseA,56,0,0,0,0,0,NaN

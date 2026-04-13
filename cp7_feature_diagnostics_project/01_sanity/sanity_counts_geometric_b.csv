@@ -1,0 +1,2 @@
+label_mode,scope,n_total,n_label_valid,n_label_missing,n_los,n_nlos,n_all_features_valid,n_joint_valid,local_k,analysis_status,skip_reason
+geometric_class,B,56,56,0,35,21,56,56,15,ok,

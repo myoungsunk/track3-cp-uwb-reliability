@@ -1,0 +1,6 @@
+variant_name,fold_id,n_train,n_test,n_los_train,n_nlos_train,lambda,n_selected,selected_features
+proposed_11feature_l1,1,90,22,45,45,0.00864599134248594,10,"fp_energy_db, skewness_pdp, kurtosis_pdp, mean_excess_delay_ns, rms_delay_spread_ns, gamma_CP_rx1, gamma_CP_rx2, a_FP_RHCP_rx1, a_FP_LHCP_rx1, a_FP_RHCP_rx2"
+proposed_11feature_l1,2,89,23,45,44,0.0114736437741898,8,"fp_energy_db, skewness_pdp, kurtosis_pdp, rms_delay_spread_ns, gamma_CP_rx2, a_FP_RHCP_rx1, a_FP_LHCP_rx1, a_FP_LHCP_rx2"
+proposed_11feature_l1,3,89,23,44,45,0.0275659742853521,7,"fp_energy_db, kurtosis_pdp, rms_delay_spread_ns, gamma_CP_rx1, gamma_CP_rx2, a_FP_LHCP_rx1, a_FP_LHCP_rx2"
+proposed_11feature_l1,4,90,22,45,45,0.00214708615063647,10,"fp_energy_db, skewness_pdp, kurtosis_pdp, rms_delay_spread_ns, gamma_CP_rx1, gamma_CP_rx2, a_FP_RHCP_rx1, a_FP_LHCP_rx1, a_FP_RHCP_rx2, a_FP_LHCP_rx2"
+proposed_11feature_l1,5,90,22,45,45,0.0279438740834868,7,"fp_energy_db, kurtosis_pdp, rms_delay_spread_ns, gamma_CP_rx1, gamma_CP_rx2, a_FP_LHCP_rx1, a_FP_LHCP_rx2"

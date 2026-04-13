@@ -1,0 +1,11 @@
+Scenario B focus note
+Target: geometric
+Scenario B objects: 3 (glass, metal, wood)
+Scenario C objects: 8 (glass, metal, wood)
+CP_caseB r_CP AUC=0.535 with n_los=35, n_nlos=21.
+CP_caseC r_CP AUC=0.509 with n_los=21, n_nlos=35.
+Scenario B label split from export CSV: geometric NLoS=42, material NLoS=2.
+Material NLoS in Scenario B is sparse: first NLoS sample is (5.250, -1.750), tag=T49, hits=metal_cabinet_1, materials=metal, criterion=hard_block_material.
+Geometric NLoS in Scenario B is mostly driven by: glass, metal.
+Interpretation: under geometric labels, Scenario B includes many glass-partition NLoS links, so r_CP no longer tracks the label as a clean binary cue.
+This is consistent with parity information being partially preserved only in specific reflection/blockage regimes rather than all geometric obstructions.

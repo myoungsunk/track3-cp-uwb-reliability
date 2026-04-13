@@ -1,0 +1,2 @@
+feature_x,feature_y,rf_h_statistic,interaction_rms,interaction_peak,interaction_peak_feature_x,interaction_peak_feature_y,interaction_trough,interaction_trough_feature_x,interaction_trough_feature_y,pd_range,interaction_range
+a_FP_RHCP_rx1,gamma_CP_rx2,0.482838799848895,0.0677949291784624,0.034952420634921,0.208898809004418,1.70151916778107,-0.12287248015873,0.196699075628745,0.541904478161372,0.430121527777778,0.157824900793651

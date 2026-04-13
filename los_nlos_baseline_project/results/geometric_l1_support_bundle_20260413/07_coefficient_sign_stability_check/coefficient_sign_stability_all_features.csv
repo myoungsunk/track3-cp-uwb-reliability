@@ -1,0 +1,12 @@
+term_name,is_cp7_feature,coef_B,coef_C,coef_BC,sign_B,sign_C,sign_BC,sign_consistent_B_vs_C,sign_consistent_all,flip_B_vs_C,near_zero_BC_abs_lt_0p1
+a_FP_LHCP_rx1,True,1.06869621823748,1.1809062101339,0.999282486903457,positive,positive,positive,True,True,False,False
+a_FP_LHCP_rx2,True,0.786604574550961,0.313478499074309,0.328578136836479,positive,positive,positive,True,True,False,False
+a_FP_RHCP_rx1,True,-0.259290304175101,-1.11450097142878,-0.642510012515222,negative,negative,negative,True,True,False,False
+a_FP_RHCP_rx2,True,-0.828694038888253,1.02818797987735,0.0892911814180356,negative,positive,positive,False,False,True,True
+gamma_CP_rx1,True,0.673324744027795,0.888373968679188,0.525934268881608,positive,positive,positive,True,True,False,False
+gamma_CP_rx2,True,-0.52112160102186,-1.01778777135372,-0.812178013909108,negative,negative,negative,True,True,False,False
+fp_energy_db,False,0.816390577951375,0.984701300902861,1.15024760433735,positive,positive,positive,True,True,False,False
+kurtosis_pdp,False,1.39678159621824,-0.203442946337491,1.11124944777975,positive,negative,positive,False,False,True,False
+mean_excess_delay_ns,False,0.792024633347867,0.151089527308771,0.560802774503689,positive,positive,positive,True,True,False,False
+rms_delay_spread_ns,False,-1.36490451369744,-1.06343717068677,-0.996349259304059,negative,negative,negative,True,True,False,False
+skewness_pdp,False,-0.104075605441107,-0.505672016129429,-0.435175244579383,negative,negative,negative,True,True,False,False

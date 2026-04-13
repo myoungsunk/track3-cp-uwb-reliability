@@ -1,0 +1,2 @@
+label_mode,scope,status,n_valid,n_los,n_nlos,cv_auc,cv_accuracy,oob_auc,warning_message
+geometric_class,C,ok,56,21,35,0.751700680272109,0.714285714285714,0.787074829931973,

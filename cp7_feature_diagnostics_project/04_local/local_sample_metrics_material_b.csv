@@ -1,0 +1,1 @@
+label_mode,scope,feature_name,sample_id,scenario,x_m,y_m,label,feature_value,local_raw_auc,local_effective_auc,n_local,n_los_local,n_nlos_local,min_class_local,unstable_flag

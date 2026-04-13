@@ -1,0 +1,5 @@
+scope,n_samples,baseline_fp,baseline_fn,proposed_fp,proposed_fn,delta_fp,delta_fn,rescued_total,rescued_from_baseline_fp,rescued_from_baseline_fn,harmed_total,harmed_to_proposed_fp,harmed_to_proposed_fn,rescue_rate_given_baseline_fp,rescue_rate_given_baseline_fn,relative_fp_change,relative_fn_change
+overall,112,14,12,10,7,-4,-5,12,4,8,3,0,3,0.2857142857142857,0.6666666666666666,-0.2857142857142857,-0.4166666666666667
+B,56,7,4,4,1,-3,-3,7,3,4,1,0,1,0.42857142857142855,1.0,-0.42857142857142855,-0.75
+C,56,7,8,6,6,-1,-2,5,1,4,2,0,2,0.14285714285714285,0.5,-0.14285714285714285,-0.25
+hard_case,17,6,3,3,0,-3,-3,6,3,3,0,0,0,0.5,1.0,-0.5,-1.0

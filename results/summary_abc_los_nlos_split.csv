@@ -1,0 +1,7 @@
+file,scenario,label_type,N,LoS,NLoS,LoS_ratio,NLoS_ratio
+CP_caseA_4port.csv,A,material_class,56,56,0,1,0
+CP_caseA_4port.csv,A,geometric_class,56,56,0,1,0
+CP_caseB_4port.csv,B,material_class,56,55,1,0.982142857142857,0.0178571428571429
+CP_caseB_4port.csv,B,geometric_class,56,35,21,0.625,0.375
+CP_caseC_4port.csv,C,material_class,56,40,16,0.714285714285714,0.285714285714286
+CP_caseC_4port.csv,C,geometric_class,56,21,35,0.375,0.625

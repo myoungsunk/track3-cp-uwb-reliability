@@ -1,0 +1,9 @@
+scenario,name,material,category,origin_x,origin_y,origin_z,size_x,size_y,size_z,notes
+C,glass_partition_1,glass,partition,2,-2,-2,0.02,1.4,2.2,Left-side vertical glass partition.
+C,glass_partition_2,glass,partition,2.75,0.55,-2,0.02,1.6,2.2,Right-side vertical glass partition.
+C,metal_cabinet_1,metal,cabinet,1.65,-0.45,-2,0.8,0.6,1.9,Central metal cabinet; strong LoS blocker for some middle-grid links.
+C,metal_cabinet_2,metal,cabinet,4.8,1.75,-2,0.7,0.45,1.8,Side-wall metal cabinet for additional late reflections.
+C,wood_desk_1,wood,desk,3,-1.8,-2,1.3,0.7,0.75,Desk cluster 1.
+C,wood_desk_2,wood,desk,3.15,0.15,-2,1.3,0.7,0.75,Desk cluster 2.
+C,wood_desk_3,wood,desk,4.55,-0.6,-2,0.95,1.2,0.75,Desk cluster 3 with larger footprint in y.
+C,wood_shelf_1,wood,shelf,1.15,1.55,-2,0.9,0.35,1.2,Intermediate-height shelf for additional mid-path interaction.

@@ -1,0 +1,2 @@
+label_mode,scope,status,n_valid,n_los,n_nlos,cv_auc,cv_accuracy,oob_auc,warning_message
+material_class,B,insufficient_minority,56,55,1,NaN,NaN,NaN,

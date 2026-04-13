@@ -1,0 +1,3 @@
+label_mode,scope,n_coords,winner_count,runner_up_count,lower_rank_count,missing_count,stable_winner_count,stable_runner_up_count,mean_gap_to_best,median_gap_to_best
+material_class,C,56,7,7,42,0,0,0,0.185221294908795,0.236111111111111
+material_class,B+C,56,13,6,37,0,0,1,0.134954747651136,0.139751552795031

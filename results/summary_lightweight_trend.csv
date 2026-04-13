@@ -1,0 +1,4 @@
+﻿"case","best_model","best_auc","best_flops","best_lightweight","lw_auc","lw_flops"
+"caseC_4port_material","LogisticQuad","0.8625","11","LogisticQuad","0.8625","11"
+"caseB_4port_geometric","RandomForest","0.914965986394558","522","LogisticQuad","0.9","11"
+"caseC_4port_geometric","LogisticQuad","0.757142857142857","11","LogisticQuad","0.757142857142857","11"

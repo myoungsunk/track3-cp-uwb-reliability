@@ -48,7 +48,7 @@ ax = axes(fig);
 hold(ax, 'on');
 
 plot(ax, x_log(labels), y_val(labels), 'bo', 'MarkerSize', 4, 'LineWidth', 0.8);
-plot(ax, x_log(~labels), y_val(~labels), 'rx', 'MarkerSize', 4, 'LineWidth', 0.8);
+plot(ax, x_log(~labels), y_val(~labels), 'r^', 'MarkerSize', 4, 'LineWidth', 0.8);
 
 if isfield(model, 'coefficients') && numel(model.coefficients) >= 3
     draw_decision_boundary(ax, model, params, x_log, y_val);
@@ -111,7 +111,7 @@ legend_text = {};
 if isfield(results, 'roc') && isfield(results.roc, 'fpr') && isfield(results.roc, 'tpr')
     auc_log = results.roc.auc;
     plot(ax, results.roc.fpr, results.roc.tpr, 'b-', 'LineWidth', 1.2);
-    legend_text{end + 1} = sprintf('Logistic (AUC=%.2f)', auc_log); %#ok<AGROW>
+    legend_text{end + 1} = sprintf('Logistic (AUC=%.3f)', auc_log); %#ok<AGROW>
 end
 
 roc_curves = [];
@@ -119,7 +119,15 @@ if istable(benchmark) && ~isempty(benchmark.Properties.UserData) && isfield(benc
     roc_curves = benchmark.Properties.UserData.roc_curves;
 end
 
-style_map = struct('SVM', 'r--', 'RandomForest', 'g:', 'DNN', 'm-.');
+style_map = struct( ...
+    'SVM', 'r--', ...
+    'RandomForest', 'g:', ...
+    'DNN', 'm-.', ...
+    'LDA', 'c-', ...
+    'QDA', 'c--', ...
+    'LinearSVM', 'y-', ...
+    'TinyTree', 'y--', ...
+    'LogisticQuad', 'k-.');
 for idx = 1:numel(roc_curves)
     name = string(roc_curves(idx).model_name);
     if name == "Logistic"
@@ -134,7 +142,7 @@ for idx = 1:numel(roc_curves)
         style = 'k--';
     end
     plot(ax, roc_curves(idx).fpr, roc_curves(idx).tpr, style, 'LineWidth', 1.2);
-    legend_text{end + 1} = sprintf('%s (AUC=%.2f)', char(name), roc_curves(idx).auc); %#ok<AGROW>
+    legend_text{end + 1} = sprintf('%s (AUC=%.3f)', char(name), roc_curves(idx).auc); %#ok<AGROW>
 end
 
 grid(ax, 'on');
@@ -159,19 +167,29 @@ ax = axes(fig);
 hold(ax, 'on');
 
 x_flops = double(benchmark.flops);
-y_acc = double(benchmark.accuracy) * 100;
-scatter(ax, x_flops, y_acc, 30, 'filled');
+y_auc = double(benchmark.auc);
+valid_mask = isfinite(x_flops) & isfinite(y_auc) & x_flops > 0;
+x_flops = x_flops(valid_mask);
+y_auc = y_auc(valid_mask);
+names = string(benchmark.model_name(valid_mask));
 
-for idx = 1:height(benchmark)
-    text(ax, x_flops(idx), y_acc(idx), [' ' char(benchmark.model_name(idx))], 'FontName', font_name, 'FontSize', font_size_legend);
+scatter(ax, x_flops, y_auc, 30, 'filled');
+
+for idx = 1:numel(names)
+    text(ax, x_flops(idx), y_auc(idx), ...
+        sprintf(' %s (%.3f)', char(names(idx)), y_auc(idx)), ...
+        'FontName', font_name, 'FontSize', font_size_legend);
 end
 
 set(ax, 'XScale', 'log');
 grid(ax, 'on');
 xlabel(ax, 'FLOPs (log scale)');
-ylabel(ax, 'Accuracy (%)');
+ylabel(ax, 'AUC');
+ylim(ax, [0, 1]);
 set(ax, 'FontName', font_name, 'FontSize', font_size_axis);
 
+save_figure_multi(fig, figure_dir, 'fig3_auc_vs_flops', resolution_dpi);
+% Keep legacy filename for downstream scripts that still reference old name.
 save_figure_multi(fig, figure_dir, 'fig3_accuracy_vs_flops', resolution_dpi);
 close(fig);
 end
@@ -202,6 +220,12 @@ xlabel(ax, 'Mean Predicted Probability');
 ylabel(ax, 'Fraction of Positives');
 set(ax, 'FontName', font_name, 'FontSize', font_size_axis);
 legend(ax, {'Perfect calibration', 'Model'}, 'Location', 'northwest', 'FontName', font_name, 'FontSize', font_size_legend);
+
+if isfield(results, 'ece') && isfinite(results.ece)
+    text(ax, 0.04, 0.95, sprintf('ECE = %.3f', results.ece), ...
+        'Units', 'normalized', 'VerticalAlignment', 'top', ...
+        'FontName', font_name, 'FontSize', font_size_legend);
+end
 
 save_figure_multi(fig, figure_dir, 'fig4_calibration', resolution_dpi);
 close(fig);

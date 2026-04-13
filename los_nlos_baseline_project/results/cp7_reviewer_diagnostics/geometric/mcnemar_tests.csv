@@ -1,0 +1,7 @@
+scope,subset_name,n_samples,status,skip_reason,baseline_correct_proposed_wrong,baseline_wrong_proposed_correct,chi_square_cc,p_value_exact
+B,overall,56,ok,,3,7,0.9,0.34375
+B,hard_case_0p4_0p6,12,ok,,1,4,0.8,0.375
+C,overall,56,ok,,3,8,1.45454545454545,0.2265625
+C,hard_case_0p4_0p6,9,ok,,0,3,1.33333333333333,0.25
+B+C,overall,112,ok,,3,12,4.26666666666667,0.03515625
+B+C,hard_case_0p4_0p6,17,ok,,0,6,4.16666666666667,0.03125

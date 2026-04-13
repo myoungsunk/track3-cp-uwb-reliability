@@ -1,0 +1,6 @@
+predictor_name,coefficient,selected_fullfit,selection_frequency,lambda_fullfit
+fp_energy_db,1.22867307398341,1,1,0.0114826153338706
+skewness_pdp,0,0,0,0.0114826153338706
+kurtosis_pdp,0.849105471285437,1,1,0.0114826153338706
+mean_excess_delay_ns,0,0,0,0.0114826153338706
+rms_delay_spread_ns,-0.047717289339871,1,0.6,0.0114826153338706

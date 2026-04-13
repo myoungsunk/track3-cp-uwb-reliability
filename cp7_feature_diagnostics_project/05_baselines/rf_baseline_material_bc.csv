@@ -1,0 +1,2 @@
+label_mode,scope,status,n_valid,n_los,n_nlos,cv_auc,cv_accuracy,oob_auc,warning_message
+material_class,B+C,ok,112,95,17,0.868421052631579,0.875,0.871207430340557,

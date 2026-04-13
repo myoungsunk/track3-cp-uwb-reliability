@@ -1,0 +1,7 @@
+term_name,is_cp7_feature,coef_B,coef_C,coef_BC,sign_B,sign_C,sign_BC,sign_consistent_B_vs_C,sign_consistent_all,flip_B_vs_C,near_zero_BC_abs_lt_0p1
+a_FP_LHCP_rx1,True,1.06869621823748,1.1809062101339,0.999282486903457,positive,positive,positive,True,True,False,False
+a_FP_LHCP_rx2,True,0.786604574550961,0.313478499074309,0.328578136836479,positive,positive,positive,True,True,False,False
+a_FP_RHCP_rx1,True,-0.259290304175101,-1.11450097142878,-0.642510012515222,negative,negative,negative,True,True,False,False
+a_FP_RHCP_rx2,True,-0.828694038888253,1.02818797987735,0.0892911814180356,negative,positive,positive,False,False,True,True
+gamma_CP_rx1,True,0.673324744027795,0.888373968679188,0.525934268881608,positive,positive,positive,True,True,False,False
+gamma_CP_rx2,True,-0.52112160102186,-1.01778777135372,-0.812178013909108,negative,negative,negative,True,True,False,False

@@ -1,0 +1,3 @@
+model_name,n_samples,n_bins,binning,ece,brier_score
+baseline,112,5,uniform,0.04265671376911821,0.15556409575403557
+proposed,112,5,uniform,0.04089097489291803,0.11260384301598547

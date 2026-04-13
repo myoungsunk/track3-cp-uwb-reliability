@@ -1,0 +1,8 @@
+label_mode,scope,feature_name,n_valid,n_los,n_nlos,intercept,coef,coef_stderr,coef_pvalue,cv_auc,cv_accuracy,cv_backend,stats_backend,status,warning_message
+material_class,B,gamma_CP_rx1,56,55,1,NaN,NaN,NaN,NaN,NaN,NaN,none,none,insufficient_minority,
+material_class,B,gamma_CP_rx2,56,55,1,NaN,NaN,NaN,NaN,NaN,NaN,none,none,insufficient_minority,
+material_class,B,a_FP_RHCP_rx1,56,55,1,NaN,NaN,NaN,NaN,NaN,NaN,none,none,insufficient_minority,
+material_class,B,a_FP_LHCP_rx1,56,55,1,NaN,NaN,NaN,NaN,NaN,NaN,none,none,insufficient_minority,
+material_class,B,a_FP_RHCP_rx2,56,55,1,NaN,NaN,NaN,NaN,NaN,NaN,none,none,insufficient_minority,
+material_class,B,a_FP_LHCP_rx2,56,55,1,NaN,NaN,NaN,NaN,NaN,NaN,none,none,insufficient_minority,
+material_class,B,fp_idx_diff_rx12,56,55,1,NaN,NaN,NaN,NaN,NaN,NaN,none,none,insufficient_minority,

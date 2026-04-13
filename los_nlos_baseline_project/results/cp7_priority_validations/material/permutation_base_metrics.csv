@@ -1,0 +1,3 @@
+model_name,baseline_auc
+logistic,0.943653250773994
+rf,0.935603715170279

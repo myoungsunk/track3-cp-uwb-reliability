@@ -1,0 +1,5 @@
+model_name,cv_auc,cv_accuracy,interaction_feature,interaction_coef,interaction_pvalue,delta_auc_vs_additive,delta_accuracy_vs_additive,feature_set
+pair_additive,0.881578947368421,0.892885375494071,none,NaN,NaN,0,0,gamma_CP_rx2 + a_FP_RHCP_rx1
+pair_plus_interaction,0.871052631578947,0.883794466403162,gamma_CP_rx2*a_FP_RHCP_rx1,NaN,NaN,-0.0105263157894736,-0.00909090909090904,gamma_CP_rx2 + a_FP_RHCP_rx1 + interaction
+full7_additive,0.842982456140351,0.892490118577075,none,NaN,NaN,0,0,gamma_CP_rx1 + gamma_CP_rx2 + a_FP_RHCP_rx1 + a_FP_LHCP_rx1 + a_FP_RHCP_rx2 + a_FP_LHCP_rx2 + fp_idx_diff_rx12
+full7_plus_interaction,0.816666666666667,0.883794466403162,gamma_CP_rx2*a_FP_RHCP_rx1,-0.0348733628519463,0.98541769710336,-0.0263157894736844,-0.00869565217391299,gamma_CP_rx1 + gamma_CP_rx2 + a_FP_RHCP_rx1 + a_FP_LHCP_rx1 + a_FP_RHCP_rx2 + a_FP_LHCP_rx2 + fp_idx_diff_rx12 + interaction

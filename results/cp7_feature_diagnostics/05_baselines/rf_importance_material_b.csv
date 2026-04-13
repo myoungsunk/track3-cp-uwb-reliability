@@ -1,0 +1,8 @@
+predictor_name,permuted_delta_error
+gamma_CP_rx1,NaN
+gamma_CP_rx2,NaN
+a_FP_RHCP_rx1,NaN
+a_FP_LHCP_rx1,NaN
+a_FP_RHCP_rx2,NaN
+a_FP_LHCP_rx2,NaN
+fp_idx_diff_rx12,NaN

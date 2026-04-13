@@ -54,6 +54,15 @@ window_vec = [];
 has_inc = ismember('inc_ang_deg', freq_table.Properties.VariableNames);
 has_pol = ismember('pol_type', freq_table.Properties.VariableNames);
 has_case = ismember('case_id', freq_table.Properties.VariableNames);
+has_cp4 = all(ismember({'S21_rhcp_rx1', 'S21_lhcp_rx1', 'S21_rhcp_rx2', 'S21_lhcp_rx2'}, ...
+    freq_table.Properties.VariableNames));
+
+if has_cp4
+    cir_rhcp_rx1_cell = cell(n_group, 1);
+    cir_lhcp_rx1_cell = cell(n_group, 1);
+    cir_rhcp_rx2_cell = cell(n_group, 1);
+    cir_lhcp_rx2_cell = cell(n_group, 1);
+end
 
 for idx_group = 1:n_group
     group_mask = (freq_table.group_id == group_ids(idx_group));
@@ -64,11 +73,28 @@ for idx_group = 1:n_group
     [freq_vals, sort_idx] = sort(freq_vals, 'ascend');
     s21_rx1_vals = s21_rx1_vals(sort_idx);
     s21_rx2_vals = s21_rx2_vals(sort_idx);
+    if has_cp4
+        s21_rhcp_rx1_vals = freq_table.S21_rhcp_rx1(group_mask);
+        s21_lhcp_rx1_vals = freq_table.S21_lhcp_rx1(group_mask);
+        s21_rhcp_rx2_vals = freq_table.S21_rhcp_rx2(group_mask);
+        s21_lhcp_rx2_vals = freq_table.S21_lhcp_rx2(group_mask);
+
+        s21_rhcp_rx1_vals = s21_rhcp_rx1_vals(sort_idx);
+        s21_lhcp_rx1_vals = s21_lhcp_rx1_vals(sort_idx);
+        s21_rhcp_rx2_vals = s21_rhcp_rx2_vals(sort_idx);
+        s21_lhcp_rx2_vals = s21_lhcp_rx2_vals(sort_idx);
+    end
 
     in_range = freq_vals >= freq_min & freq_vals <= freq_max;
     freq_vals = freq_vals(in_range);
     s21_rx1_vals = s21_rx1_vals(in_range);
     s21_rx2_vals = s21_rx2_vals(in_range);
+    if has_cp4
+        s21_rhcp_rx1_vals = s21_rhcp_rx1_vals(in_range);
+        s21_lhcp_rx1_vals = s21_lhcp_rx1_vals(in_range);
+        s21_rhcp_rx2_vals = s21_rhcp_rx2_vals(in_range);
+        s21_lhcp_rx2_vals = s21_lhcp_rx2_vals(in_range);
+    end
 
     if numel(freq_vals) < 2
         continue;
@@ -78,6 +104,12 @@ for idx_group = 1:n_group
     if numel(freq_unique) ~= numel(freq_vals)
         s21_rx1_vals = accumarray(unique_gid, s21_rx1_vals, [], @mean);
         s21_rx2_vals = accumarray(unique_gid, s21_rx2_vals, [], @mean);
+        if has_cp4
+            s21_rhcp_rx1_vals = accumarray(unique_gid, s21_rhcp_rx1_vals, [], @mean);
+            s21_lhcp_rx1_vals = accumarray(unique_gid, s21_lhcp_rx1_vals, [], @mean);
+            s21_rhcp_rx2_vals = accumarray(unique_gid, s21_rhcp_rx2_vals, [], @mean);
+            s21_lhcp_rx2_vals = accumarray(unique_gid, s21_lhcp_rx2_vals, [], @mean);
+        end
         freq_vals = freq_unique;
     end
 
@@ -98,6 +130,12 @@ for idx_group = 1:n_group
         if numel(freq_vals) ~= numel(freq_ref) || max(abs(freq_vals(:) - freq_ref)) > tol
             s21_rx1_vals = interp1(freq_vals, s21_rx1_vals, freq_ref, 'linear', 'extrap');
             s21_rx2_vals = interp1(freq_vals, s21_rx2_vals, freq_ref, 'linear', 'extrap');
+            if has_cp4
+                s21_rhcp_rx1_vals = interp1(freq_vals, s21_rhcp_rx1_vals, freq_ref, 'linear', 'extrap');
+                s21_lhcp_rx1_vals = interp1(freq_vals, s21_lhcp_rx1_vals, freq_ref, 'linear', 'extrap');
+                s21_rhcp_rx2_vals = interp1(freq_vals, s21_rhcp_rx2_vals, freq_ref, 'linear', 'extrap');
+                s21_lhcp_rx2_vals = interp1(freq_vals, s21_lhcp_rx2_vals, freq_ref, 'linear', 'extrap');
+            end
             freq_vals = freq_ref;
         end
     end
@@ -110,6 +148,22 @@ for idx_group = 1:n_group
 
     cir_rx1_cell{idx_group} = ifft(s21_pad_rx1, n_fft);
     cir_rx2_cell{idx_group} = ifft(s21_pad_rx2, n_fft);
+    if has_cp4
+        s21_win_rhcp_rx1 = s21_rhcp_rx1_vals(:) .* window_vec;
+        s21_win_lhcp_rx1 = s21_lhcp_rx1_vals(:) .* window_vec;
+        s21_win_rhcp_rx2 = s21_rhcp_rx2_vals(:) .* window_vec;
+        s21_win_lhcp_rx2 = s21_lhcp_rx2_vals(:) .* window_vec;
+
+        s21_pad_rhcp_rx1 = [s21_win_rhcp_rx1; zeros(n_fft - n_freq_used, 1)];
+        s21_pad_lhcp_rx1 = [s21_win_lhcp_rx1; zeros(n_fft - n_freq_used, 1)];
+        s21_pad_rhcp_rx2 = [s21_win_rhcp_rx2; zeros(n_fft - n_freq_used, 1)];
+        s21_pad_lhcp_rx2 = [s21_win_lhcp_rx2; zeros(n_fft - n_freq_used, 1)];
+
+        cir_rhcp_rx1_cell{idx_group} = ifft(s21_pad_rhcp_rx1, n_fft);
+        cir_lhcp_rx1_cell{idx_group} = ifft(s21_pad_lhcp_rx1, n_fft);
+        cir_rhcp_rx2_cell{idx_group} = ifft(s21_pad_rhcp_rx2, n_fft);
+        cir_lhcp_rx2_cell{idx_group} = ifft(s21_pad_lhcp_rx2, n_fft);
+    end
 
     first_row = find(group_mask, 1, 'first');
     x_mm(idx_group) = double(freq_table.x_coord_mm(first_row));
@@ -143,6 +197,12 @@ end
 
 cir_rx1 = cell2mat(cellfun(@(x) x(:).', cir_rx1_cell(valid_group), 'UniformOutput', false));
 cir_rx2 = cell2mat(cellfun(@(x) x(:).', cir_rx2_cell(valid_group), 'UniformOutput', false));
+if has_cp4
+    cir_rhcp_rx1 = cell2mat(cellfun(@(x) x(:).', cir_rhcp_rx1_cell(valid_group), 'UniformOutput', false));
+    cir_lhcp_rx1 = cell2mat(cellfun(@(x) x(:).', cir_lhcp_rx1_cell(valid_group), 'UniformOutput', false));
+    cir_rhcp_rx2 = cell2mat(cellfun(@(x) x(:).', cir_rhcp_rx2_cell(valid_group), 'UniformOutput', false));
+    cir_lhcp_rx2 = cell2mat(cellfun(@(x) x(:).', cir_lhcp_rx2_cell(valid_group), 'UniformOutput', false));
+end
 x_mm = x_mm(valid_group);
 y_mm = y_mm(valid_group);
 inc_ang = inc_ang(valid_group);
@@ -156,6 +216,12 @@ t_axis_ns = (0:n_fft-1) * dt_s * 1e9;
 
 rss_rx1 = 10 * log10(sum(abs(cir_rx1).^2, 2));
 rss_rx2 = 10 * log10(sum(abs(cir_rx2).^2, 2));
+if has_cp4
+    rss_rhcp_rx1 = 10 * log10(sum(abs(cir_rhcp_rx1).^2, 2));
+    rss_lhcp_rx1 = 10 * log10(sum(abs(cir_lhcp_rx1).^2, 2));
+    rss_rhcp_rx2 = 10 * log10(sum(abs(cir_rhcp_rx2).^2, 2));
+    rss_lhcp_rx2 = 10 * log10(sum(abs(cir_lhcp_rx2).^2, 2));
+end
 
 [labels, label_info] = assign_labels_for_positions(x_mm, y_mm, case_id, params);
 if label_info.unmatched_count > 0
@@ -176,6 +242,16 @@ sim_data.RSS_rx2 = rss_rx2;
 sim_data.pol_type = pol_type;
 sim_data.case_id = case_id;
 sim_data.data_role = string(get_param(params, 'data_role', 'test'));
+if has_cp4
+    sim_data.CIR_rhcp_rx1 = cir_rhcp_rx1;
+    sim_data.CIR_lhcp_rx1 = cir_lhcp_rx1;
+    sim_data.CIR_rhcp_rx2 = cir_rhcp_rx2;
+    sim_data.CIR_lhcp_rx2 = cir_lhcp_rx2;
+    sim_data.RSS_rhcp_rx1 = rss_rhcp_rx1;
+    sim_data.RSS_lhcp_rx1 = rss_lhcp_rx1;
+    sim_data.RSS_rhcp_rx2 = rss_rhcp_rx2;
+    sim_data.RSS_lhcp_rx2 = rss_lhcp_rx2;
+end
 
 if has_inc && any(isfinite(inc_ang))
     sim_data.inc_ang = inc_ang;

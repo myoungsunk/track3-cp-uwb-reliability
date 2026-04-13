@@ -1,0 +1,12 @@
+Scenario B/C CP7 note
+Target: geometric
+Scenario B objects: 3 (glass, metal, wood)
+Scenario C objects: 8 (glass, metal, wood)
+CP_caseB gamma_CP_rx1 AUC=0.633 with n_los=35, n_nlos=21.
+CP_caseB gamma_CP_rx2 AUC=0.582 with n_los=35, n_nlos=21.
+CP_caseC gamma_CP_rx1 AUC=0.710 with n_los=21, n_nlos=35.
+CP_caseC gamma_CP_rx2 AUC=0.626 with n_los=21, n_nlos=35.
+Scenario B label split from export CSV: geometric NLoS=21, material NLoS=1.
+First material-NLoS sample in Scenario B: (5.250, -1.750), tag=T49, hits=metal_cabinet_1, materials=metal, criterion=hard_block_material.
+Scenario B geometric NLoS hit materials: glass, metal.
+Interpretation: under geometric labels, many glass-partition links are already NLoS, so channel-specific parity and polarization cues become diagnostic only in selected sub-regimes.

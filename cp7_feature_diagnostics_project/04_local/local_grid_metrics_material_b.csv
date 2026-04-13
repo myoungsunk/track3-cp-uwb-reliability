@@ -1,0 +1,1 @@
+label_mode,scope,feature_name,x_m,y_m,local_raw_auc,local_effective_auc,n_local,n_los_local,n_nlos_local,min_class_local,unstable_flag,n_points_at_coord

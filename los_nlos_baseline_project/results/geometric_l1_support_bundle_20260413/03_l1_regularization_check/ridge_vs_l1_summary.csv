@@ -1,0 +1,7 @@
+variant_name,source,auc,accuracy,brier_score,n_input_features,fullfit_lambda,n_selected_fullfit,note
+ridge_baseline,reviewer_paired_cv,0.849808673469388,0.767857142857143,0.155564095754035,5,NaN,NaN,"ridge reference from reviewer rerun"
+ridge_proposed,reviewer_paired_cv,0.91390306122449,0.848214285714286,0.112603843015985,11,NaN,NaN,"ridge reference from reviewer rerun"
+baseline_5feature_l1,l1_stratified_kfold,0.844387755102041,0.767857142857143,0.158565127904926,5,0.0114826153338706,3,"fp_energy_db, kurtosis_pdp, rms_delay_spread_ns"
+proposed_11feature_l1,l1_stratified_kfold,0.876275510204082,0.839285714285714,0.136931493479938,11,0.00484217873650868,11,"fp_energy_db, skewness_pdp, kurtosis_pdp, mean_excess_delay_ns, rms_delay_spread_ns, gamma_CP_rx1, gamma_CP_rx2, a_FP_RHCP_rx1, a_FP_LHCP_rx1, a_FP_RHCP_rx2, a_FP_LHCP_rx2"
+ridge_baseline,spatial_cv_leave_one_position_out,0.840561224489796,0.758928571428571,0.161457468836072,5,NaN,NaN,"spatial CV reference"
+ridge_full_proposed,spatial_cv_leave_one_position_out,0.90656887755102,0.866071428571429,0.117717588387548,11,NaN,NaN,"spatial CV reference"

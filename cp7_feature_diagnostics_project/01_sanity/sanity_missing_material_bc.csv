@@ -1,0 +1,7 @@
+label_mode,scope,feature_name,n_missing,n_valid
+material_class,B+C,gamma_CP_rx1,0,112
+material_class,B+C,gamma_CP_rx2,0,112
+material_class,B+C,a_FP_RHCP_rx1,0,112
+material_class,B+C,a_FP_LHCP_rx1,0,112
+material_class,B+C,a_FP_RHCP_rx2,0,112
+material_class,B+C,a_FP_LHCP_rx2,0,112

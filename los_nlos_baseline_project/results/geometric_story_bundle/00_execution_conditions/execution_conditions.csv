@@ -1,0 +1,36 @@
+group,key,value,description
+environment,bundle_root,"D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project\results\geometric_story_bundle",Top-level output folder for this rerun bundle
+environment,script_dir,"D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\los_nlos_baseline_project",MATLAB script directory
+environment,project_root,"D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability",Workspace root
+environment,matlab_version,"25.2.0.3150157 (R2025b) Update 4",MATLAB version string
+environment,run_timestamp,"2026-04-10 22:24:42",Local execution timestamp
+environment,repro_command,"matlab -batch ""outputs = run_geometric_story_bundle;""",Command to reproduce this bundle
+stage01_baseline,label_target_report_focus,"geometric_class",This report uses the geometric label target only
+stage01_baseline,case_files,"CP_caseA.csv, CP_caseB.csv, CP_caseC.csv, LP_caseA.csv, LP_caseB.csv, LP_caseC.csv",Full 6-case baseline universe
+stage01_baseline,polarizations,"CP and LP",Baseline uses both CP and LP
+stage01_baseline,random_seed,"42",Random seed for baseline CV
+stage01_baseline,cv_folds,"5",Stratified CV fold count
+stage01_baseline,classification_threshold,"0.5",Threshold applied to logistic scores
+stage01_baseline,logistic_lambda,"0.01",L2 regularization
+stage01_baseline,feature_set,"r_CP, a_FP, fp_energy_gap_db, rise_time_ns, mean_excess_delay_ns, rms_delay_spread_ns, max_excess_delay_ns, kurtosis_pdp, skewness_pdp, fp_energy_db, total_energy_db, fp_energy_ratio, fp_amp_norm, peak_to_leading_db, multipath_count, ricean_k_db",Full literature-style CIR feature set used in the single-file baseline
+stage03_reviewer,targets,"material, geometric",Reviewer rerun stores both targets because downstream priority validation expects the shared material dataset
+stage03_reviewer,case_names,"CP_caseB, CP_caseC",CP7 features exist for CP_caseB and CP_caseC only
+stage03_reviewer,polarization,"CP only",CP7 analysis is restricted to CP polarization
+stage03_reviewer,cv_folds,"5",Stratified CV fold count
+stage03_reviewer,random_seed,"42",Random seed
+stage03_reviewer,classification_threshold,"0.5",Threshold for baseline and proposed predictions
+stage03_reviewer,hard_case_band,"[0.4, 0.6]",Baseline confidence interval used to define ambiguous samples
+stage03_reviewer,baseline_features,"fp_energy_db, skewness_pdp, kurtosis_pdp, mean_excess_delay_ns, rms_delay_spread_ns",Literature baseline feature set
+stage03_reviewer,cp7_features,"gamma_CP_rx1, gamma_CP_rx2, a_FP_RHCP_rx1, a_FP_LHCP_rx1, a_FP_RHCP_rx2, a_FP_LHCP_rx2",6 channel-resolved CP7 features
+stage03_reviewer,metric_bootstrap_repeats,"1000",Bootstrap repeats for delta-AUC confidence intervals
+stage04_priority,n_cv_repeats,"20",Repeated CV count for ablation estimation
+stage04_priority,permutation_repeats,"100",Permutation importance repeat count
+stage04_priority,rf_num_trees,"80",Random forest tree count
+stage04_priority,rf_min_leaf_size,"2",Random forest minimum leaf size
+stage04_priority,spatial_cv_enabled,"true",Whether spatial CV check was run
+stage04_priority,spatial_cv_strategy,"leave_one_position_out",Spatial CV protocol
+stage05_followup,bootstrap_repeats,"1000",Dual-RX bootstrap repeat count
+stage05_followup,mechanism_bootstrap_repeats,"1000",Mechanism subgroup bootstrap repeat count
+stage05_followup,rx1_features,"gamma_CP_rx1, a_FP_RHCP_rx1, a_FP_LHCP_rx1",Single-RX1 CP7 features
+stage05_followup,rx2_features,"gamma_CP_rx2, a_FP_RHCP_rx2, a_FP_LHCP_rx2",Single-RX2 CP7 features
+stage05_followup,dual_features,"gamma_CP_rx1, a_FP_RHCP_rx1, a_FP_LHCP_rx1, gamma_CP_rx2, a_FP_RHCP_rx2, a_FP_LHCP_rx2",Dual-RX CP7 features

@@ -1,0 +1,2 @@
+feature_x,feature_y,grid_n_gamma,grid_n_afpr1,rf_h_statistic,interaction_rms,interaction_peak,interaction_peak_gamma_cp_rx2,interaction_peak_a_fp_rhcp_rx1,interaction_trough,interaction_trough_gamma_cp_rx2,interaction_trough_a_fp_rhcp_rx1,pd_range,interaction_range
+gamma_CP_rx2,a_FP_RHCP_rx1,25,25,0.482838799848894,0.0677949291784623,0.0349524206349211,1.70151916778107,0.208898809004418,-0.12287248015873,0.541904478161372,0.196699075628745,0.430121527777778,0.157824900793651

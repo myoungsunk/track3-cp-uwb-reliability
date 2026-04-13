@@ -1,0 +1,8 @@
+label_mode,scope,feature_name,n,n_los,n_nlos,point_biserial,auc_raw,auc_effective,ks_stat,mi_bits,direction,status
+material_class,C,a_FP_RHCP_rx2,56,40,16,0.587513593063363,0.8640625,0.8640625,0.575,0.335000808377388,higher->LoS,ok
+material_class,C,a_FP_RHCP_rx1,56,40,16,0.516168757366973,0.80625,0.80625,0.6125,0.356611140413054,higher->LoS,ok
+material_class,C,gamma_CP_rx1,56,40,16,0.428574156261419,0.7703125,0.7703125,0.5125,0.375902487939055,higher->LoS,ok
+material_class,C,a_FP_LHCP_rx1,56,40,16,0.340941956964983,0.7515625,0.7515625,0.55,0.323303986376431,higher->LoS,ok
+material_class,C,a_FP_LHCP_rx2,56,40,16,0.344293230028845,0.7125,0.7125,0.4,0.173313595654297,higher->LoS,ok
+material_class,C,fp_idx_diff_rx12,56,40,16,-0.359827324316551,0.32578125,0.67421875,0.275,0.0453412385017679,higher->NLoS,ok
+material_class,C,gamma_CP_rx2,56,40,16,0.206256801630906,0.5828125,0.5828125,0.325,0.217781899148459,higher->LoS,ok

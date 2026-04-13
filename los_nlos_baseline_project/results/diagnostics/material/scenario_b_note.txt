@@ -1,0 +1,12 @@
+Scenario B focus note
+Target: material
+Scenario B objects: 3 (glass, metal, wood)
+Scenario C objects: 8 (glass, metal, wood)
+CP_caseB r_CP AUC=1.000 with n_los=55, n_nlos=1.
+CP_caseC r_CP AUC=0.508 with n_los=40, n_nlos=16.
+Scenario B label split from export CSV: geometric NLoS=42, material NLoS=2.
+Material NLoS in Scenario B is sparse: first NLoS sample is (5.250, -1.750), tag=T49, hits=metal_cabinet_1, materials=metal, criterion=hard_block_material.
+Geometric NLoS in Scenario B is mostly driven by: glass, metal.
+Interpretation: the perfect CP_caseB r_CP score is driven by a tiny hard-block regime, not a broad class split.
+Scenario B has one metal-cabinet path that flips the material label to NLoS, while most other blocked links are thin-glass geometric NLoS but material LoS.
+This supports a regime-selective diagnostic view: r_CP is informative when a specular, hard-block interaction dominates, but it collapses in dense clutter (Scenario C).

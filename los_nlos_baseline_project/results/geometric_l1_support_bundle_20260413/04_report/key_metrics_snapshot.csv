@@ -1,0 +1,10 @@
+metric_name,value
+paired_baseline_auc,0.849808673469388
+paired_proposed_auc,0.91390306122449
+paired_delta_auc,0.0640943877551019
+paired_delta_brier,-0.04296025273805
+paired_mcnemar_p,0.03515625
+hardcase_baseline_auc,0.428571428571429
+hardcase_proposed_auc,0.928571428571428
+spatial_baseline_auc,0.840561224489796
+spatial_proposed_auc,0.90656887755102

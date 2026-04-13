@@ -1,0 +1,5 @@
+run_name,scenario,label_type,status,N,LoS,NLoS,logistic_cv_auc,logistic_eval_auc,logistic_eval_accuracy,logistic_ece,best_model,best_model_auc,best_ablation,best_ablation_auc,output_dir
+caseB_4port_material,B,material,minority_below_threshold,56,55,1,NaN,NaN,NaN,NaN,,NaN,,NaN,D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\results\caseB_4port_material
+caseB_4port_geometric,B,geometric,ok,56,35,21,0.657142857142857,0.653061224489796,0.732142857142857,0.119997640076994,RandomForest,0.914965986394558,a_FP_only,0.664285714285714,D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\results\caseB_4port_geometric
+caseC_4port_material,C,material,ok,56,40,16,0.8625,0.834375,0.660714285714286,0.136253397779116,Logistic,0.8625,combined,0.8625,D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\results\caseC_4port_material
+caseC_4port_geometric,C,geometric,ok,56,21,35,0.737142857142857,0.759183673469388,0.732142857142857,0.0971563044900806,Logistic,0.737142857142857,a_FP_only,0.765714285714286,D:\OneDrive - postech.ac.kr\명선\2026\2. ISAC\track3-cp-uwb-reliability\results\caseC_4port_geometric

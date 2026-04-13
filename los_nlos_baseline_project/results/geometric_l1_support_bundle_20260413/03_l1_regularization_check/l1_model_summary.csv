@@ -1,0 +1,3 @@
+variant_name,n_input_features,n_samples,n_los,n_nlos,auc,accuracy,brier_score,mean_cv_lambda,fullfit_lambda,n_selected_fullfit,selected_features_fullfit
+baseline_5feature_l1,5,112,56,56,0.844387755102041,0.767857142857143,0.158565127904926,0.0188065125209904,0.0114826153338706,3,"fp_energy_db, kurtosis_pdp, rms_delay_spread_ns"
+proposed_11feature_l1,11,112,56,56,0.876275510204082,0.839285714285714,0.136931493479938,0.0155553139272302,0.00484217873650868,11,"fp_energy_db, skewness_pdp, kurtosis_pdp, mean_excess_delay_ns, rms_delay_spread_ns, gamma_CP_rx1, gamma_CP_rx2, a_FP_RHCP_rx1, a_FP_LHCP_rx1, a_FP_RHCP_rx2, a_FP_LHCP_rx2"
